@@ -1,0 +1,109 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "Adist",
+  "projectDescription": "A powerful CLI tool for indexing, searching, and having AI-powered conversations about your projects.",
+  "theme": "aspen",
+  "primaryColor": "#8B5CF6",
+  "lightColor": "#A78BFA",
+  "darkColor": "#6D28D9",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/indexing",
+              "features/searching",
+              "features/ai-chat",
+              "features/project-management"
+            ]
+          },
+          {
+            "group": "LLM Integration",
+            "pages": [
+              "llm/overview",
+              "llm/anthropic",
+              "llm/openai",
+              "llm/ollama"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/block-based-indexing",
+              "guides/configuration",
+              "guides/supported-file-types"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "CLI Reference",
+        "groups": [
+          {
+            "group": "Commands",
+            "pages": [
+              "cli/init",
+              "cli/get",
+              "cli/query",
+              "cli/chat",
+              "cli/reindex",
+              "cli/switch",
+              "cli/list",
+              "cli/summary",
+              "cli/llm-config",
+              "cli/view",
+              "cli/paths",
+              "cli/remove"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "cli/legacy-commands",
+              "cli/troubleshooting"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Fast document indexing with block-based semantic analysis",
+    "AI-powered conversations with multiple LLM providers (Claude, GPT, Ollama)",
+    "Interactive chat interface with context awareness",
+    "Multi-project management and switching",
+    "Syntax highlighting for code and queries",
+    "Tree-sitter based code parsing",
+    "Document summarization",
+    "Real-time streaming responses"
+  ],
+  "publicApiSurface": [
+    "adist init <project-name>",
+    "adist get <query>",
+    "adist query <question> [--stream]",
+    "adist chat [--stream]",
+    "adist reindex [--summarize]",
+    "adist switch [project-name]",
+    "adist list [-d, --debug]",
+    "adist summary [--file <filename>]",
+    "adist llm-config",
+    "adist view <file-path>",
+    "adist paths",
+    "adist remove-index <project-name>",
+    "adist remove-project <project-name>",
+    "adist remove-project-id <project-id>",
+    "adist legacy-get <query>",
+    "adist legacy-reindex [--summarize]"
+  ]
+}
