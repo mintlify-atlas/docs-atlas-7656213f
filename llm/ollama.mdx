@@ -1,0 +1,463 @@
+---
+title: "Ollama Local Integration"
+description: "Run AI models locally with Ollama for free, private code analysis with Adist"
+---
+
+## Overview
+
+Adist integrates with Ollama to provide AI-driven code analysis using locally-run language models. This option is completely free, private, and doesn't require an internet connection for inference.
+
+## Benefits
+
+<CardGroup cols={3}>
+  <Card title="Free" icon="dollar-sign">
+    No API costs - run unlimited queries
+  </Card>
+  <Card title="Private" icon="lock">
+    Your code never leaves your machine
+  </Card>
+  <Card title="Offline" icon="wifi-slash">
+    Works without internet (after initial setup)
+  </Card>
+</CardGroup>
+
+## Setup
+
+<Steps>
+  <Step title="Install Ollama">
+    Download and install Ollama from [ollama.com/download](https://ollama.com/download)
+    
+    <Tabs>
+      <Tab title="macOS">
+        Download the macOS installer from the website and run it.
+      </Tab>
+      
+      <Tab title="Linux">
+        ```bash
+        curl -fsSL https://ollama.com/install.sh | sh
+        ```
+      </Tab>
+      
+      <Tab title="Windows">
+        Download the Windows installer from the website and run it.
+      </Tab>
+    </Tabs>
+  </Step>
+  
+  <Step title="Pull a Model">
+    Download a language model. Popular options include:
+    
+    <Tabs>
+      <Tab title="Llama 3 (Recommended)">
+        ```bash
+        ollama pull llama3
+        ```
+        
+        Llama 3 offers excellent code understanding and generation.
+      </Tab>
+      
+      <Tab title="CodeLlama">
+        ```bash
+        ollama pull codellama
+        ```
+        
+        Specialized for code-related tasks.
+      </Tab>
+      
+      <Tab title="Mistral">
+        ```bash
+        ollama pull mistral
+        ```
+        
+        Fast and efficient general-purpose model.
+      </Tab>
+    </Tabs>
+  </Step>
+  
+  <Step title="Start Ollama Service">
+    Ensure Ollama is running:
+    
+    ```bash
+    ollama serve
+    ```
+    
+    <Note>
+      On most systems, Ollama runs as a background service automatically after installation.
+    </Note>
+  </Step>
+  
+  <Step title="Configure Adist">
+    Run the LLM configuration command:
+    
+    ```bash
+    adist llm-config
+    ```
+    
+    Select:
+    1. **Ollama** as your provider
+    2. Your preferred model from the list of installed models
+    3. Optionally customize the API URL (default: `http://localhost:11434`)
+  </Step>
+  
+  <Step title="Verify Setup">
+    Test the integration:
+    
+    ```bash
+    adist query "What does this project do?"
+    ```
+  </Step>
+</Steps>
+
+## Features
+
+### Local Model Support
+
+The Ollama service can use any locally installed model:
+
+```bash
+# List available models
+ollama list
+
+# Pull additional models
+ollama pull llama3:70b  # Larger, more capable version
+ollama pull phi3         # Smaller, faster model
+```
+
+### Context Caching
+
+The Ollama service includes intelligent context caching:
+
+- **Topic Identification**: Automatically identifies query topics
+- **Cache Duration**: Contexts are cached for 30 minutes
+- **Cache Cleanup**: Old entries are automatically removed
+
+<Note>
+  Context merging is simpler in Ollama compared to cloud providers due to smaller context windows.
+</Note>
+
+### Query Complexity Estimation
+
+Queries are analyzed and categorized as:
+
+- **Low Complexity**: Simple questions (< 8 words, no technical terms)
+- **Medium Complexity**: Standard questions (8-15 words or basic technical terms)
+- **High Complexity**: Complex questions (> 15 words, code snippets, comparisons)
+
+Context allocation is optimized based on complexity.
+
+### Streaming Support
+
+Ollama supports real-time streaming responses:
+
+```bash
+adist query "Explain the authentication system" --stream
+adist chat --stream
+```
+
+## Code Reference
+
+The Ollama service is implemented in `/home/daytona/workspace/source/src/utils/ollama.ts:20`
+
+### Key Methods
+
+#### isAvailable
+
+Checks if Ollama is running:
+
+```typescript
+async isAvailable(): Promise<boolean>
+```
+
+#### listModels
+
+Returns all locally installed models:
+
+```typescript
+async listModels(): Promise<string[]>
+```
+
+#### summarizeFile
+
+Generates summaries of individual files:
+
+```typescript
+async summarizeFile(content: string, filePath: string): Promise<SummaryResult>
+```
+
+#### generateOverallSummary
+
+Creates a project overview from file summaries:
+
+```typescript
+async generateOverallSummary(fileSummaries: { path: string; summary: string }[]): Promise<SummaryResult>
+```
+
+#### queryProject
+
+Answers questions about your project:
+
+```typescript
+async queryProject(
+  query: string,
+  context: { content: string; path: string }[],
+  projectId: string,
+  streamCallback?: (chunk: string) => void
+): Promise<SummaryResult>
+```
+
+#### chatWithProject
+
+Enables conversational interactions:
+
+```typescript
+async chatWithProject(
+  messages: { role: 'user' | 'assistant'; content: string }[],
+  context: { content: string; path: string }[],
+  projectId: string,
+  streamCallback?: (chunk: string) => void
+): Promise<SummaryResult>
+```
+
+## Configuration Options
+
+### Context Limits
+
+- **Maximum Context Length**: 30,000 characters (lower than cloud providers)
+- **Cache Timeout**: 30 minutes
+- **Dynamic Adjustment**: Context size varies based on query complexity
+
+### Custom API URL
+
+If you're running Ollama on a different host or port:
+
+```bash
+# During llm-config, specify custom URL
+API URL: http://your-server:11434
+```
+
+### Model Selection
+
+Different models have different characteristics:
+
+<Tabs>
+  <Tab title="Small Models (< 10GB)">
+    - **phi3**: Fast, good for simple queries
+    - **llama3:8b**: Balanced performance
+    - **mistral**: General purpose
+    
+    Best for: Quick answers, limited hardware
+  </Tab>
+  
+  <Tab title="Medium Models (10-40GB)">
+    - **llama3:70b**: High quality responses
+    - **codellama:34b**: Code-specialized
+    - **mixtral**: Advanced reasoning
+    
+    Best for: Complex analysis, better hardware
+  </Tab>
+  
+  <Tab title="Code-Specialized">
+    - **codellama**: Trained on code
+    - **deepseek-coder**: Excellent for coding tasks
+    - **starcoder**: GitHub-trained model
+    
+    Best for: Code generation and analysis
+  </Tab>
+</Tabs>
+
+## Performance Optimization
+
+### Hardware Requirements
+
+<Tabs>
+  <Tab title="Minimum">
+    - **RAM**: 8GB
+    - **GPU**: Optional (CPU-only works)
+    - **Storage**: 5GB for small models
+    
+    Suitable for: Basic queries with small models
+  </Tab>
+  
+  <Tab title="Recommended">
+    - **RAM**: 16GB+
+    - **GPU**: NVIDIA GPU with 8GB+ VRAM
+    - **Storage**: 20GB+ for multiple models
+    
+    Suitable for: Most use cases
+  </Tab>
+  
+  <Tab title="Optimal">
+    - **RAM**: 32GB+
+    - **GPU**: NVIDIA GPU with 24GB+ VRAM
+    - **Storage**: 100GB+ for large models
+    
+    Suitable for: Large models, fast responses
+  </Tab>
+</Tabs>
+
+### GPU Acceleration
+
+Ollama automatically uses GPU acceleration when available:
+
+- **NVIDIA GPUs**: CUDA support (recommended)
+- **Apple Silicon**: Metal support
+- **AMD GPUs**: ROCm support (Linux)
+
+<Note>
+  GPU acceleration can be 10-100x faster than CPU-only inference.
+</Note>
+
+## Cost Comparison
+
+Ollama is completely free:
+
+- **API Costs**: $0 (no API calls)
+- **Inference**: Free unlimited usage
+- **Storage**: Only disk space for models
+
+<Tabs>
+  <Tab title="vs Anthropic">
+    **Example: 1000 queries**
+    
+    - Ollama: $0
+    - Anthropic (Claude Sonnet): ~$3-10
+    
+    Ollama breaks even immediately.
+  </Tab>
+  
+  <Tab title="vs OpenAI">
+    **Example: 1000 queries**
+    
+    - Ollama: $0
+    - OpenAI (GPT-4o): ~$10-40
+    
+    Ollama saves significant costs for heavy usage.
+  </Tab>
+</Tabs>
+
+## Best Practices
+
+<Tabs>
+  <Tab title="Model Selection">
+    - Start with `llama3` for balanced performance
+    - Use `codellama` for code-heavy projects
+    - Try smaller models first if hardware is limited
+    - Experiment with different models for your use case
+  </Tab>
+  
+  <Tab title="Performance">
+    - Close other applications when using large models
+    - Use GPU acceleration when available
+    - Keep models updated: `ollama pull <model>`
+    - Monitor resource usage with system tools
+  </Tab>
+  
+  <Tab title="Quality">
+    - Ensure projects are well-indexed
+    - Use descriptive variable and function names
+    - Generate summaries: `adist reindex --summarize`
+    - Try different models if quality varies
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+### Ollama Not Running
+
+If you see connection errors:
+
+```bash
+# Check if Ollama is running
+curl http://localhost:11434/api/tags
+
+# Start Ollama service
+ollama serve
+```
+
+### No Models Available
+
+If no models appear during configuration:
+
+```bash
+# List installed models
+ollama list
+
+# Pull a model if none are installed
+ollama pull llama3
+```
+
+### Slow Responses
+
+- Use a smaller model (e.g., `llama3:8b` instead of `llama3:70b`)
+- Enable GPU acceleration
+- Reduce context complexity
+- Close other applications
+
+### Out of Memory
+
+- Switch to a smaller model
+- Reduce the number of concurrent queries
+- Increase system swap space
+- Use CPU instead of GPU if VRAM is limited
+
+### Poor Response Quality
+
+- Try a larger or specialized model
+- Ensure project is properly indexed
+- Use more specific queries
+- Generate file summaries for better context
+
+## Privacy and Security
+
+<Warning>
+  While Ollama runs locally, ensure you:
+  - Keep Ollama updated for security patches
+  - Don't expose the Ollama API to untrusted networks
+  - Use firewall rules if running on a server
+</Warning>
+
+**Privacy Benefits:**
+- Code never sent to external APIs
+- No data collection or telemetry
+- Complete control over your data
+- Suitable for sensitive or proprietary code
+
+## Advanced Configuration
+
+### Custom Model Parameters
+
+You can customize model behavior by creating a Modelfile:
+
+```bash
+# Create a custom model with specific parameters
+cat > Modelfile <<EOF
+FROM llama3
+PARAMETER temperature 0.7
+PARAMETER top_p 0.9
+SYSTEM You are a helpful coding assistant specialized in code review.
+EOF
+
+# Create the custom model
+ollama create my-code-assistant -f Modelfile
+```
+
+Then select `my-code-assistant` in `adist llm-config`.
+
+### Running on Remote Server
+
+To use Ollama running on another machine:
+
+1. Configure Ollama to accept remote connections
+2. Update the API URL in `adist llm-config`
+3. Ensure proper network security (VPN, firewall, etc.)
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Start Querying" icon="message-question" href="/cli/query">
+    Ask questions about your codebase
+  </Card>
+  <Card title="Start Chatting" icon="comments" href="/cli/chat">
+    Have conversations about your project
+  </Card>
+</CardGroup>

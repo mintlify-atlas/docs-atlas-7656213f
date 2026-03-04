@@ -1,0 +1,126 @@
+---
+title: adist reindex
+description: Reindex project files with block-based indexing
+---
+
+Reindex a project or all projects using block-based indexing. This updates the search index to reflect changes in your codebase.
+
+## Syntax
+
+```bash
+adist reindex [projectName] [options]
+```
+
+## Arguments
+
+<ParamField path="projectName" type="string">
+  Optional project name to reindex. If omitted, reindexes the current project.
+</ParamField>
+
+## Options
+
+<ParamField path="-a, --all" type="boolean">
+  Reindex all projects instead of just one.
+</ParamField>
+
+<ParamField path="-s, --summarize" type="boolean">
+  Generate LLM summaries for files during indexing.
+  
+  **Note:** This will incur API costs based on codebase size.
+</ParamField>
+
+## Behavior
+
+### Block-Based Indexing
+
+The reindex command uses intelligent block-based indexing that:
+
+- Parses files into semantic blocks (functions, classes, sections)
+- Extracts metadata (titles, line numbers, types)
+- Creates searchable embeddings for each block
+- Preserves code structure and context
+
+### Summarization
+
+When `--summarize` is used:
+
+- Generates AI summaries for each file
+- Creates an overall project summary
+- Stores summaries for use in search results
+- Improves context for AI queries
+
+## Examples
+
+### Reindex current project
+
+```bash
+adist reindex
+```
+
+### Reindex with summaries
+
+```bash
+adist reindex --summarize
+```
+
+### Reindex specific project
+
+```bash
+adist reindex my-project
+```
+
+### Reindex specific project with summaries
+
+```bash
+adist reindex my-api --summarize
+```
+
+### Reindex all projects
+
+```bash
+adist reindex --all
+```
+
+### Reindex all projects with summaries
+
+```bash
+adist reindex --all --summarize
+```
+
+## When to Reindex
+
+Reindex your project when:
+
+- You've added new files
+- Code has been significantly modified
+- Search results seem outdated
+- You want to add summaries to an existing project
+- Switching from legacy to block-based indexing
+
+## Output
+
+Shows:
+
+- Indexing progress
+- Number of files processed
+- Success/error status
+- Summary generation status (if enabled)
+
+## Environment Variables
+
+<ParamField path="ANTHROPIC_API_KEY" type="string">
+  Required when using `--summarize` flag.
+</ParamField>
+
+## Performance Notes
+
+- Block-based indexing is more thorough than legacy indexing
+- Summarization significantly increases processing time
+- Large codebases may take several minutes to index
+- Progress is shown during the indexing process
+
+## Related Commands
+
+- [adist init](/cli/init) - Initialize a new project (includes initial indexing)
+- [adist summary](/cli/summary) - View generated summaries
+- [adist get](/cli/get) - Search indexed content

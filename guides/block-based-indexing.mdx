@@ -1,0 +1,153 @@
+---
+title: Block-Based Indexing
+description: Learn how Adist's block-based indexing system splits documents into semantic blocks for precise searching and better AI context
+---
+
+## Overview
+
+Adist uses a block-based indexing system that breaks down your files into semantic blocks rather than treating each file as a monolithic document. This approach provides more precise search results and better context for AI-powered features.
+
+## How It Works
+
+When you index a project, Adist parses each file into logical blocks based on the file type:
+
+### Code Files (JavaScript/TypeScript)
+
+For `.js`, `.jsx`, `.ts`, and `.tsx` files, Adist extracts:
+
+- **Imports** - All import statements grouped together
+- **Interfaces** - TypeScript interface declarations
+- **Types** - TypeScript type definitions
+- **Functions** - Standalone function declarations
+- **Classes** - Class declarations with nested methods
+- **Methods** - Individual methods within classes
+- **Variables** - Variable declarations (const, let, var)
+- **Components** - React/JSX components
+- **Comments** - JSDoc-style comment blocks
+
+Each block includes:
+- The block's content
+- Start and line numbers (e.g., `src/config.ts:68`)
+- Metadata like function names, signatures, and export status
+- Parent-child relationships for hierarchical structures
+
+### Markdown Files
+
+For `.md` and `.markdown` files, Adist extracts:
+
+- **Headings** - Section headers with their level (H1-H6)
+- **Paragraphs** - Individual text paragraphs
+- **Lists** - Ordered and unordered lists
+- **Code blocks** - Fenced code blocks with language tags
+- **Tables** - Markdown tables
+
+Headings include all content under them until the next heading of the same or higher level, creating a natural document hierarchy.
+
+### Other File Types
+
+Files that don't have a specialized parser (like `.json`, `.yaml`, `.toml`) are indexed as a single document block containing the full file content.
+
+## Hierarchical Structure
+
+Blocks are organized in a parent-child hierarchy:
+
+```
+Document (root)
+├── Imports
+├── Interface: Config
+├── Class: BlockIndexer
+│   ├── Method: constructor
+│   ├── Method: indexProject
+│   └── Method: indexCurrentProject
+└── Function: getConfig
+```
+
+This hierarchy allows you to:
+- Search within specific scopes
+- Get contextual parent and child blocks automatically
+- Navigate your codebase more intuitively
+
+## Search Benefits
+
+Block-based indexing improves search in several ways:
+
+### Precision
+
+Instead of returning an entire file, Adist returns only the relevant blocks. When you search for "indexProject", you get:
+- The specific function or method
+- Its parent class or module
+- Related child blocks for context
+
+### Scoring
+
+Blocks are scored based on:
+- **Title matches** - Matches in function/class names score highest
+- **Content matches** - Matches in the block content
+- **Metadata matches** - Matches in signatures and identifiers
+- **Block type** - Code blocks (functions, classes) score higher for code searches
+
+The scoring system ensures the most relevant code appears first.
+
+### Contextual Results
+
+When a block matches your query, Adist automatically includes:
+- Parent blocks for hierarchical context
+- Immediate child blocks for completeness
+- Related blocks from the same file
+
+This gives you the full picture without manually piecing together scattered results.
+
+## AI-Powered Features
+
+Block-based indexing enhances AI interactions:
+
+### Summarization
+
+When you use the `--summarize` flag during indexing, Adist:
+1. Generates a summary for each file
+2. Attaches summaries to document-level blocks
+3. Creates an overall project summary from individual file summaries
+
+Summaries help you understand large codebases quickly and allow the AI to provide more informed answers.
+
+### Query Enhancement
+
+The system detects summary-related queries (containing "summary", "overview", "describe", "what is this", etc.) and boosts document blocks with summaries in the results.
+
+### Token Efficiency
+
+By sending only relevant blocks to the AI instead of entire files, you:
+- Reduce API costs
+- Get faster responses
+- Stay within token limits even with large codebases
+
+## Performance
+
+The indexing process:
+- Uses parallel processing for file reading
+- Shows a progress bar with ETA
+- Caches results for fast subsequent searches
+- Stores indexes in your configuration directory
+
+Typical indexing speed: 100-500 files per second depending on file size and complexity.
+
+## Migration from Legacy Indexing
+
+If you were using the previous full-document indexing:
+
+- Block-based indexing is now the default
+- Legacy commands are available as `legacy-reindex` and `legacy-get`
+- You'll need to reindex your projects to use the new system
+- All existing projects continue to work with legacy commands
+
+Simply run `adist reindex` to switch to block-based indexing.
+
+## Technical Implementation
+
+Adist uses:
+- **Regex-based parsing** for code files (with plans to add tree-sitter support)
+- **unified/remark** for Markdown parsing with AST traversal
+- **UUID-based block IDs** for stable references
+- **In-memory hierarchical maps** for fast block lookups
+
+The parsers are extensible - you can add custom parsers for additional file types by implementing the `Parser` interface.

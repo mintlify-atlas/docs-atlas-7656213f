@@ -1,0 +1,263 @@
+---
+title: "Anthropic Claude Integration"
+description: "Use Anthropic's Claude models for AI-powered code analysis with Adist"
+---
+
+## Overview
+
+Adist integrates with Anthropic's Claude API to provide powerful AI-driven code analysis using state-of-the-art language models. Claude offers excellent code understanding and generation capabilities.
+
+## Available Models
+
+You can choose from three Claude 3 models:
+
+<CardGroup cols={3}>
+  <Card title="Claude 3 Opus" icon="star">
+    Most capable model for complex tasks
+  </Card>
+  <Card title="Claude 3 Sonnet" icon="bolt">
+    Balanced performance and cost (default)
+  </Card>
+  <Card title="Claude 3 Haiku" icon="zap">
+    Fastest model for simple queries
+  </Card>
+</CardGroup>
+
+## Setup
+
+<Steps>
+  <Step title="Get an API Key">
+    Sign up for an Anthropic API key at [console.anthropic.com](https://console.anthropic.com)
+  </Step>
+  
+  <Step title="Set Environment Variable">
+    Add your API key to your environment:
+    
+    <Tabs>
+      <Tab title="Linux/macOS">
+        ```bash
+        export ANTHROPIC_API_KEY='your-api-key-here'
+        ```
+        
+        To make it permanent, add the line to your `~/.bashrc`, `~/.zshrc`, or `~/.profile`:
+        
+        ```bash
+        echo 'export ANTHROPIC_API_KEY="your-api-key-here"' >> ~/.bashrc
+        source ~/.bashrc
+        ```
+      </Tab>
+      
+      <Tab title="Windows (PowerShell)">
+        ```powershell
+        $env:ANTHROPIC_API_KEY='your-api-key-here'
+        ```
+        
+        To make it permanent:
+        
+        ```powershell
+        [System.Environment]::SetEnvironmentVariable('ANTHROPIC_API_KEY', 'your-api-key-here', 'User')
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+  
+  <Step title="Configure Adist">
+    Run the LLM configuration command:
+    
+    ```bash
+    adist llm-config
+    ```
+    
+    Select:
+    1. **Anthropic** as your provider
+    2. Your preferred Claude model (Opus, Sonnet, or Haiku)
+  </Step>
+  
+  <Step title="Verify Setup">
+    Test the integration by querying your project:
+    
+    ```bash
+    adist query "What does this project do?"
+    ```
+  </Step>
+</Steps>
+
+## Features
+
+### Context Caching
+
+The Anthropic service implementation includes intelligent context caching:
+
+- **Topic Identification**: Automatically identifies query topics using AI
+- **Cache Duration**: Contexts are cached for 30 minutes
+- **Related Context Merging**: Similar topics are merged for better responses
+- **Cache Cleanup**: Old entries are automatically removed
+
+### Query Complexity Estimation
+
+Queries are analyzed and categorized as:
+
+- **Low Complexity**: Simple questions (< 8 words, no technical terms)
+- **Medium Complexity**: Standard questions (8-15 words or basic technical terms)
+- **High Complexity**: Complex questions (> 15 words, code snippets, comparisons)
+
+Context allocation is optimized based on complexity.
+
+### Document Relevance Scoring
+
+The service scores documents based on:
+
+- Code blocks and syntax
+- Comments and documentation
+- Function definitions (`function`, `=>`)
+- Class definitions (`class`, `interface`)
+
+Documents with higher relevance scores receive more context space.
+
+### Conversation Analysis
+
+In chat mode, the service analyzes conversation patterns to detect:
+
+- **Follow-up Questions**: Short queries or questions building on previous context
+- **Deep Dives**: Extended conversations on related topics
+
+Context is adjusted dynamically based on conversation state.
+
+## Code Reference
+
+The Anthropic service is implemented in `/home/daytona/workspace/source/src/utils/anthropic.ts:20`
+
+### Key Methods
+
+#### summarizeFile
+
+Generates comprehensive summaries of individual files:
+
+```typescript
+async summarizeFile(content: string, filePath: string): Promise<SummaryResult>
+```
+
+#### generateOverallSummary
+
+Creates a high-level project overview from file summaries:
+
+```typescript
+async generateOverallSummary(fileSummaries: { path: string; summary: string }[]): Promise<SummaryResult>
+```
+
+#### queryProject
+
+Answers questions about your project with context optimization:
+
+```typescript
+async queryProject(
+  query: string,
+  context: { content: string; path: string }[],
+  projectId: string,
+  streamCallback?: (chunk: string) => void
+): Promise<SummaryResult>
+```
+
+#### chatWithProject
+
+Enables conversational interactions with full history support:
+
+```typescript
+async chatWithProject(
+  messages: { role: 'user' | 'assistant'; content: string }[],
+  context: { content: string; path: string }[],
+  projectId: string,
+  streamCallback?: (chunk: string) => void
+): Promise<SummaryResult>
+```
+
+## Pricing
+
+Claude 3 Sonnet (default) pricing:
+- **$3 per million tokens** (combined input and output)
+
+Adist displays the cost of each operation when using Anthropic's API.
+
+<Note>
+  Token usage is optimized through context caching and intelligent document selection.
+</Note>
+
+## Configuration Options
+
+### Context Limits
+
+- **Maximum Context Length**: 60,000 characters
+- **Cache Timeout**: 30 minutes
+- **Dynamic Adjustment**: Context size varies based on query complexity
+
+### Optimization Strategies
+
+The service employs several strategies to optimize API usage:
+
+1. **Context Reuse**: Related queries share cached context
+2. **Relevance Filtering**: Only the most relevant documents are included
+3. **Smart Truncation**: Documents are truncated based on relevance scores
+4. **Project Summaries**: High-level overviews supplement missing context
+
+## Best Practices
+
+<Warning>
+  Keep your API key secure. Never commit it to version control or share it publicly.
+</Warning>
+
+<Tabs>
+  <Tab title="Efficient Queries">
+    - Ask specific, focused questions
+    - Use streaming mode for long responses
+    - Leverage chat mode for related follow-up questions
+  </Tab>
+  
+  <Tab title="Cost Optimization">
+    - Use cached contexts when possible (related queries)
+    - Choose Haiku for simple queries
+    - Use Sonnet for balanced performance (default)
+    - Reserve Opus for complex analysis
+  </Tab>
+  
+  <Tab title="Quality Results">
+    - Ensure your project is properly indexed
+    - Use descriptive file names and comments
+    - Generate summaries with `adist reindex --summarize`
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+### API Key Not Found
+
+If you see "ANTHROPIC_API_KEY environment variable is required":
+
+1. Verify the environment variable is set: `echo $ANTHROPIC_API_KEY`
+2. Restart your terminal after setting the variable
+3. Check for typos in the variable name
+
+### Rate Limits
+
+If you encounter rate limiting:
+
+- Wait a few moments before retrying
+- Consider reducing query frequency
+- Check your API usage at console.anthropic.com
+
+### Poor Response Quality
+
+- Ensure your project is fully indexed: `adist reindex`
+- Generate file summaries: `adist reindex --summarize`
+- Try asking more specific questions
+- Use chat mode for context-aware follow-ups
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Start Querying" icon="message-question" href="/cli/query">
+    Ask questions about your codebase
+  </Card>
+  <Card title="Start Chatting" icon="comments" href="/cli/chat">
+    Have conversations about your project
+  </Card>
+</CardGroup>

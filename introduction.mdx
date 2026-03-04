@@ -1,0 +1,122 @@
+---
+title: Introduction to Adist
+description: A powerful CLI tool for indexing, searching, and having AI-powered conversations about your projects
+---
+
+Adist is a powerful CLI tool that helps you understand and interact with your codebase through intelligent indexing, semantic search, and AI-powered conversations.
+
+Developed by [okik.ai](https://okik.ai), Adist uses advanced techniques like block-based indexing and large language models to provide deep insights into your projects.
+
+<Warning>
+This is an active development project. Breaking changes may occur between versions as we continue to improve the tool. Please check the changelog when updating.
+</Warning>
+
+## What is Adist?
+
+Adist transforms how you navigate and understand large codebases by:
+
+- **Indexing your project files** using semantic block-based analysis
+- **Enabling natural language search** across your entire codebase
+- **Providing AI-powered insights** through interactive chat and query capabilities
+- **Supporting multiple projects** with easy switching between them
+
+## Key features
+
+<CardGroup cols={2}>
+  <Card title="Fast semantic search" icon="magnifying-glass">
+    Search your codebase using natural language queries with block-based indexing for precise results
+  </Card>
+  
+  <Card title="AI-powered chat" icon="comments">
+    Have interactive conversations with AI about your codebase with persistent context
+  </Card>
+  
+  <Card title="Multi-project support" icon="folder-tree">
+    Manage and switch between multiple projects seamlessly
+  </Card>
+  
+  <Card title="LLM summarization" icon="sparkles">
+    Generate intelligent summaries of your code files and entire projects
+  </Card>
+  
+  <Card title="Block-based indexing" icon="cubes">
+    Index code at the function and section level for more precise analysis
+  </Card>
+  
+  <Card title="Multiple LLM providers" icon="brain">
+    Choose between Anthropic Claude, OpenAI GPT, or local Ollama models
+  </Card>
+</CardGroup>
+
+## How it works
+
+Adist uses a sophisticated indexing system that:
+
+1. **Scans your project directory** for supported file types (code, markdown, configuration files, etc.)
+2. **Splits documents into semantic blocks** using syntax-aware parsing
+3. **Creates embeddings** for each block to enable semantic search
+4. **Optionally generates AI summaries** for files and the overall project
+5. **Enables instant searching** through natural language queries
+
+## Supported file types
+
+Adist indexes a wide range of file types including:
+
+- Code files: `.js`, `.ts`, `.py`, `.go`, `.rs`, `.java`, `.cpp`, and more
+- Documentation: `.md`, `.txt`, `.rst`, `.asciidoc`
+- Configuration: `.json`, `.yaml`, `.toml`, `.ini`
+- And many more
+
+## LLM provider options
+
+Adist supports three LLM provider options:
+
+<Tabs>
+  <Tab title="Anthropic Claude">
+    Cloud-based solution with powerful Claude models:
+    - Claude 3 Opus
+    - Claude 3 Sonnet
+    - Claude 3 Haiku
+    
+    Requires `ANTHROPIC_API_KEY` environment variable.
+  </Tab>
+  
+  <Tab title="OpenAI">
+    Cloud-based solution with GPT models:
+    - GPT-4o
+    - GPT-4 Turbo
+    - GPT-3.5 Turbo
+    
+    Requires `OPENAI_API_KEY` environment variable.
+  </Tab>
+  
+  <Tab title="Ollama">
+    Run models locally with no API key required:
+    - llama3
+    - mistral
+    - codellama
+    - And any other locally installed models
+    
+    Install from [ollama.com/download](https://ollama.com/download)
+  </Tab>
+</Tabs>
+
+## Configuration storage
+
+Adist stores its configuration and indices in platform-specific directories:
+
+- **macOS**: `~/Library/Application Support/adist`
+- **Linux**: `~/.config/adist`
+- **Windows**: `%APPDATA%\adist`
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Install Adist" icon="download" href="/installation">
+    Get started by installing Adist globally with npm
+  </Card>
+  
+  <Card title="Quick start guide" icon="rocket" href="/quickstart">
+    Learn how to initialize your first project and start searching
+  </Card>
+</CardGroup>

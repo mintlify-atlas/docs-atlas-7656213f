@@ -1,0 +1,289 @@
+---
+title: Configuration
+description: Configuration options and storage locations for Adist CLI
+---
+
+## Configuration Storage
+
+Adist stores all configuration data in platform-specific directories using the `conf` package:
+
+- **macOS**: `~/Library/Application Support/adist/config.json`
+- **Linux**: `~/.config/adist/config.json`
+- **Windows**: `%APPDATA%\adist\config.json`
+
+The configuration file is a JSON document that stores projects, indexes, summaries, and LLM settings.
+
+## Configuration Structure
+
+The configuration has the following top-level keys:
+
+### projects
+
+Stores information about all your indexed projects:
+
+```json
+{
+  "projects": {
+    "my-project": {
+      "path": "/Users/username/code/my-project",
+      "name": "my-project",
+      "indexed": true,
+      "lastIndexed": "2024-03-15T10:30:00.000Z",
+      "hasSummaries": true
+    }
+  }
+}
+```
+
+Each project contains:
+- `path` - Absolute path to the project directory
+- `name` - Project identifier used in commands
+- `indexed` - Whether the project has been indexed
+- `lastIndexed` - Timestamp of the last indexing operation
+- `hasSummaries` - Whether LLM summaries were generated
+
+### currentProject
+
+Stores the currently active project identifier:
+
+```json
+{
+  "currentProject": "my-project"
+}
+```
+
+This determines which project is used when you run `adist get`, `adist query`, or `adist chat` commands.
+
+### block-indexes
+
+Stores the block-based index data for each project:
+
+```json
+{
+  "block-indexes": {
+    "my-project": [
+      {
+        "path": "src/config.ts",
+        "title": "config.ts",
+        "lastModified": 1710498600000,
+        "size": 3456,
+        "language": "ts",
+        "blocks": [...],
+        "blockHierarchy": {...}
+      }
+    ]
+  }
+}
+```
+
+Each indexed document contains:
+- File metadata (path, size, modification time)
+- Array of semantic blocks extracted from the file
+- Block hierarchy mapping for parent-child relationships
+
+### summaries
+
+Stores LLM-generated summaries when you use the `--summarize` flag:
+
+```json
+{
+  "summaries": {
+    "my-project": {
+      "overall": "This project is a CLI tool for...",
+      "files": {
+        "src/config.ts": "Configuration management module that..."
+      }
+    }
+  }
+}
+```
+
+Includes:
+- Overall project summary
+- Individual file summaries
+
+### llmProvider
+
+Stores your LLM provider configuration:
+
+```json
+{
+  "llmProvider": {
+    "type": "anthropic",
+    "model": "claude-3-sonnet-20240229",
+    "apiUrl": "http://localhost:11434"
+  }
+}
+```
+
+Options:
+- `type` - Provider type: `anthropic`, `openai`, or `ollama`
+- `model` - Specific model to use
+- `apiUrl` - Custom API URL (mainly for Ollama)
+
+## Accessing Configuration
+
+You don't typically need to edit the configuration file manually. Use these commands instead:
+
+### View Projects
+
+```bash
+adist list
+```
+
+Shows all configured projects with their paths and indexing status.
+
+### Switch Projects
+
+```bash
+adist switch <project-name>
+```
+
+Changes the current project.
+
+### Configure LLM Provider
+
+```bash
+adist llm-config
+```
+
+Interactive wizard to configure your LLM provider and model.
+
+### View Summaries
+
+```bash
+adist summary
+adist summary --file <filename>
+```
+
+Display project or file summaries.
+
+## Configuration API
+
+Adist's configuration system provides a simple async API with in-memory caching:
+
+### get(key)
+
+Retrieve a configuration value:
+
+```typescript
+const currentProject = await config.get('currentProject');
+const projects = await config.get('projects');
+```
+
+Supports dot notation for nested keys:
+
+```typescript
+const projectData = await config.get('projects.my-project');
+const index = await config.get('block-indexes.my-project');
+```
+
+### set(key, value)
+
+Set a configuration value:
+
+```typescript
+await config.set('currentProject', 'my-project');
+await config.set('projects.my-project.indexed', true);
+```
+
+Automatically:
+- Persists to disk
+- Updates the in-memory cache
+- Clears dependent cache entries
+
+### has(key)
+
+Check if a key exists:
+
+```typescript
+const exists = await config.has('projects.my-project');
+```
+
+## Caching
+
+Adist uses an in-memory cache to improve performance:
+
+- **Cache timeout**: 5 minutes
+- **Automatic invalidation**: When values are updated via `set()`
+- **Cache keys**: Supports prefix matching for nested keys
+
+This means frequently accessed values (like the current project) are served from memory without disk I/O.
+
+## Default Configuration
+
+When you first run Adist, it creates a configuration file with these defaults:
+
+```json
+{
+  "projects": {}
+}
+```
+
+Other keys are added as you:
+- Initialize projects (`adist init`)
+- Configure LLM providers (`adist llm-config`)
+- Generate summaries (`adist reindex --summarize`)
+
+## Configuration Best Practices
+
+### API Keys
+
+Never store API keys in the configuration file. Set them as environment variables:
+
+```bash
+export ANTHROPIC_API_KEY='your-api-key'
+export OPENAI_API_KEY='your-api-key'
+```
+
+Adist reads these automatically when needed.
+
+### Project Paths
+
+Use absolute paths for projects. Relative paths may break if you run Adist from different directories.
+
+### Backups
+
+The configuration file can grow large with indexes. Consider:
+- Regular backups if you have many projects
+- Periodic cleanup of unused projects
+- Reindexing instead of backing up index data (indexes are regenerable)
+
+### Multiple Machines
+
+If you sync your config across machines:
+- Update project paths to match each machine
+- Reindex after syncing (paths may differ)
+- Keep API keys machine-specific via environment variables
+
+## Troubleshooting
+
+### Configuration Corruption
+
+If your configuration becomes corrupted:
+
+1. Back up the file if possible
+2. Delete the configuration file
+3. Run `adist init` to create a fresh configuration
+4. Re-add your projects
+
+### Large Configuration Files
+
+If your configuration file grows too large:
+
+- The main culprit is usually block indexes
+- Consider removing unused projects
+- The cache timeout may need adjustment for very large configs
+- File size is typically 1-5 MB per 1000 indexed files
+
+### Permission Errors
+
+If you can't write to the configuration directory:
+
+```bash
+# Linux/macOS
+chmod 755 ~/.config/adist
+chmod 644 ~/.config/adist/config.json
+```
+
+Ensure you own the directory and file.

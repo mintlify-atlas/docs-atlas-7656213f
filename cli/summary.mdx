@@ -1,0 +1,182 @@
+---
+title: adist summary
+description: View AI-generated summaries for files and projects
+---
+
+View AI-generated summaries for individual files or entire projects. Requires projects to be indexed with the `--summarize` flag.
+
+## Syntax
+
+```bash
+adist summary [projectName] [options]
+```
+
+## Arguments
+
+<ParamField path="projectName" type="string">
+  Optional project name. If omitted, uses the current project.
+</ParamField>
+
+## Options
+
+<ParamField path="-f, --file" type="string">
+  View summary for a specific file path.
+</ParamField>
+
+<ParamField path="-l, --list" type="boolean">
+  Display interactive list of all files with summaries.
+</ParamField>
+
+## Behavior
+
+### Default (No Options)
+
+Shows the overall project summary.
+
+### With --file
+
+Displays the summary for a specific file.
+
+### With --list
+
+Opens an interactive file browser:
+
+- Arrow keys to navigate
+- Type to search/filter
+- Enter to view full summary
+- Esc, Ctrl+C, or 'q' to exit
+
+## Examples
+
+### View project summary
+
+```bash
+adist summary
+```
+
+### View summary for specific project
+
+```bash
+adist summary my-api
+```
+
+### View file summary
+
+```bash
+adist summary --file src/auth/login.ts
+```
+
+### Browse all file summaries
+
+```bash
+adist summary --list
+```
+
+Displays:
+```
+File Summaries for my-project:
+Navigation: Arrow keys to move, Enter to select
+Search: Type to filter files
+Exit: Press Esc, Ctrl+C, or q to quit
+
+? Select a file to view its summary:
+  > src/auth/login.ts - Handles user authentication with JWT tokens...
+    src/api/users.ts - User management API endpoints for CRUD operations...
+    src/db/schema.ts - Database schema definitions using Prisma ORM...
+```
+
+### View file summary in different project
+
+```bash
+adist summary api-server --file routes/index.js
+```
+
+## Requirements
+
+<ParamField path="hasSummaries" type="boolean" required>
+  Project must have summaries generated. Generate them with:
+  
+  ```bash
+  adist reindex --summarize
+  ```
+</ParamField>
+
+## Summary Types
+
+### Project Summary
+
+High-level overview including:
+
+- Project purpose and architecture
+- Main technologies used
+- Key components and their relationships
+- Notable patterns or conventions
+
+### File Summary
+
+For each file:
+
+- File purpose and responsibility
+- Key functions/classes/exports
+- Dependencies and relationships
+- Important implementation details
+
+## Interactive List Controls
+
+| Key | Action |
+|-----|--------|
+| ↑/↓ | Navigate files |
+| Enter | View summary |
+| Type | Filter files |
+| Esc | Exit |
+| Ctrl+C | Exit |
+| q | Exit (after viewing) |
+
+## Output Format
+
+### Project Summary
+```
+Project Summary: my-project
+
+This is a REST API server built with Express.js...
+[Full summary text]
+
+Use "adist summary --list" to view summaries for all files.
+```
+
+### File Summary
+```
+Summary for src/auth/login.ts
+
+This file implements user authentication logic...
+[Full summary text]
+```
+
+## Error Messages
+
+```bash
+# No summaries available
+⚠️ This project does not have summaries.
+Run "adist reindex --summarize" to generate summaries.
+
+# File not found
+⚠️ No summary available for "src/missing.ts".
+
+# No files with summaries
+⚠️ No files with summaries found in this project.
+```
+
+## Cost Information
+
+Summaries are generated using AI (requires API key):
+
+- Generated during `adist reindex --summarize`
+- Stored locally in config
+- No additional cost to view summaries
+- Regenerated only when reindexing
+
+## Related Commands
+
+- [adist reindex](/cli/reindex) - Generate or update summaries
+- [adist query](/cli/query) - Ask questions using summaries as context
+- [adist get](/cli/get) - Search returns summaries when available

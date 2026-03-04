@@ -1,0 +1,192 @@
+---
+title: 'Legacy Commands'
+description: 'Full-document indexing and search commands for backward compatibility'
+---
+
+Adist uses **block-based indexing** by default, which provides more precise search results by splitting documents into semantic blocks (functions, sections, paragraphs). However, the legacy full-document indexing methods are still available for backward compatibility.
+
+<Note>
+  The default `adist get` and `adist reindex` commands use block-based indexing. Only use legacy commands if you need the older full-document indexing behavior.
+</Note>
+
+## Legacy Commands Overview
+
+Legacy commands maintain the original full-document indexing approach where entire files are indexed as single units:
+
+- **legacy-get** - Search using full-document indexing
+- **legacy-reindex** - Reindex using full-document method
+
+## legacy-get
+
+Search for documents in your project using the legacy full-document search method.
+
+### Basic Usage
+
+```bash
+adist legacy-get "<query>"
+```
+
+### Examples
+
+<AccordionGroup>
+  <Accordion title="Search for authentication code">
+    ```bash
+    adist legacy-get "authentication"
+    ```
+    
+    Returns full documents that match your query with highlighted search terms.
+  </Accordion>
+
+  <Accordion title="Search for specific files">
+    ```bash
+    adist legacy-get "auth.js"
+    ```
+    
+    When your query contains `.` or `/`, Adist treats it as a file search and shows matching file paths.
+  </Accordion>
+
+  <Accordion title="Debug search results">
+    ```bash
+    adist legacy-get "database" --debug
+    ```
+    
+    Shows additional debugging information including project ID, path, and total indexed files.
+  </Accordion>
+</AccordionGroup>
+
+### Options
+
+| Option | Alias | Description |
+|--------|-------|-------------|
+| `--debug` | `-d` | Show debug information including project ID and indexed file count |
+
+### Search Behavior
+
+**File Search Mode**
+
+If your query contains `.` or `/`, the command searches for matching file paths:
+
+```bash
+adist legacy-get "src/utils"
+```
+
+**Content Search Mode**
+
+Otherwise, it searches through indexed document content and displays:
+- File path and location
+- Content preview (up to 15 lines)
+- Highlighted search terms
+
+**Summary Fallback**
+
+If no results are found but your project has summaries, the command may display:
+- Project summary (for queries like "summary" or "overview")
+- File summaries (up to 3 files)
+
+## legacy-reindex
+
+Reindex your project using the legacy full-document indexing method.
+
+### Basic Usage
+
+```bash
+adist legacy-reindex
+```
+
+Reindexes the current project using full-document indexing.
+
+### Reindex Specific Project
+
+```bash
+adist legacy-reindex <projectName>
+```
+
+Reindex a specific project by name.
+
+### Options
+
+| Option | Alias | Description |
+|--------|-------|-------------|
+| `--all` | `-a` | Reindex all projects |
+| `--summarize` | `-s` | Generate LLM summaries for files and project |
+| `--verbose` | `-v` | Show verbose output during indexing |
+
+### Examples
+
+<AccordionGroup>
+  <Accordion title="Reindex current project">
+    ```bash
+    adist legacy-reindex
+    ```
+    
+    Reindexes all files in the current project directory using the legacy method.
+  </Accordion>
+
+  <Accordion title="Reindex with summaries">
+    ```bash
+    adist legacy-reindex --summarize
+    ```
+    
+    Reindexes and generates AI-powered summaries for each file and an overall project summary. This requires:
+    - An LLM provider configured (`adist llm-config`)
+    - API key set (ANTHROPIC_API_KEY, OPENAI_API_KEY, or Ollama running locally)
+  </Accordion>
+
+  <Accordion title="Reindex all projects">
+    ```bash
+    adist legacy-reindex --all
+    ```
+    
+    Reindexes every project in your Adist configuration.
+  </Accordion>
+
+  <Accordion title="Verbose reindexing">
+    ```bash
+    adist legacy-reindex --verbose
+    ```
+    
+    Shows detailed progress information during the reindexing process.
+  </Accordion>
+</AccordionGroup>
+
+## When to Use Legacy Commands
+
+<Warning>
+  Legacy commands are maintained for backward compatibility only. For new projects, use the default block-based commands (`get` and `reindex`) for better search precision.
+</Warning>
+
+Consider using legacy commands if:
+
+- You need to maintain consistency with older Adist indexes
+- Your workflow depends on full-document search results
+- You're migrating from an older version of Adist
+
+## Migrating to Block-Based Commands
+
+To switch from legacy to block-based indexing:
+
+1. **Reindex your project** using the new method:
+   ```bash
+   adist reindex
+   ```
+
+2. **Test searches** with the new command:
+   ```bash
+   adist get "your query"
+   ```
+
+3. **Compare results** - Block-based search provides:
+   - More precise code snippets
+   - Function-level granularity
+   - Better context for AI interactions
+
+<Note>
+  Both indexing methods can coexist. Legacy and block-based indexes are stored separately, so you can use both command sets on the same project.
+</Note>
+
+## Related Commands
+
+- [get](/cli/get) - Default block-based search command
+- [reindex](/cli/reindex) - Default block-based reindexing command
+- [query](/cli/query) - AI-powered question answering
+- [chat](/cli/chat) - Interactive AI chat about your codebase

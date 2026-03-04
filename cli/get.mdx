@@ -1,0 +1,90 @@
+---
+title: adist get
+description: Search for code blocks and documents in your project
+---
+
+Search for relevant code blocks in the current project using block-based semantic search. This is the default search method that returns structured code blocks with context.
+
+## Syntax
+
+```bash
+adist get <query> [options]
+```
+
+## Arguments
+
+<ParamField path="query" type="string" required>
+  The search query to match against code blocks and file contents.
+</ParamField>
+
+## Options
+
+<ParamField path="-n, --max-results" type="number" default="10">
+  Maximum number of results to display.
+</ParamField>
+
+<ParamField path="-l, --limit-lines" type="number" default="20">
+  Maximum number of content lines to show per block.
+</ParamField>
+
+## Behavior
+
+- Uses block-based indexing to find relevant code sections
+- Displays matching blocks with syntax highlighting
+- Shows file summaries if available when no specific matches found
+- Falls back to project summary for general queries
+- Supports both code content and file path searches
+
+## Block Types
+
+The search returns different types of code blocks:
+
+- `document` - File-level information with summary
+- `function` - Function declarations
+- `class` - Class definitions  
+- `codeblock` - Code fences in markdown files
+- `section` - Logical code sections
+- `heading` - Markdown headings
+
+## Examples
+
+### Basic search
+
+```bash
+adist get "authentication logic"
+```
+
+### Search with custom result limit
+
+```bash
+adist get "database queries" --max-results 5
+```
+
+### Limit displayed lines per block
+
+```bash
+adist get "API endpoints" --limit-lines 10
+```
+
+### File path search
+
+```bash
+adist get "config.ts"
+```
+
+## Output Format
+
+Results are displayed with:
+
+- File path and name
+- File summary (if available)
+- Block type and line numbers
+- Block title (for functions, classes, etc.)
+- Syntax-highlighted content
+
+## Related Commands
+
+- [adist query](/cli/query) - Natural language queries with AI
+- [adist chat](/cli/chat) - Interactive chat about your code
+- [adist summary](/cli/summary) - View file and project summaries
+- [adist reindex](/cli/reindex) - Rebuild search index

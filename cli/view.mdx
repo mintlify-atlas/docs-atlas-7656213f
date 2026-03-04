@@ -1,0 +1,138 @@
+---
+title: adist view
+description: View a file with syntax highlighting
+---
+
+Display file contents with automatic syntax highlighting based on file extension.
+
+## Syntax
+
+```bash
+adist view <file>
+```
+
+## Arguments
+
+<ParamField path="file" type="string" required>
+  Path to the file to view. Can be relative to current directory or project directory.
+</ParamField>
+
+## Behavior
+
+1. Attempts to find file in current working directory
+2. If not found, searches in current project directory
+3. Applies syntax highlighting based on file extension
+4. Displays full file contents with line numbers
+
+## Supported Languages
+
+Automatic detection for:
+
+- JavaScript (`.js`, `.jsx`)
+- TypeScript (`.ts`, `.tsx`)
+- Python (`.py`)
+- Go (`.go`)
+- Rust (`.rs`)
+- Java (`.java`)
+- C/C++ (`.c`, `.cpp`, `.h`)
+- JSON (`.json`)
+- YAML (`.yaml`, `.yml`)
+- Markdown (`.md`)
+- HTML (`.html`)
+- CSS (`.css`, `.scss`, `.sass`)
+- Shell (`.sh`, `.bash`)
+- And many more...
+
+## Examples
+
+### View file in current directory
+
+```bash
+adist view README.md
+```
+
+### View file in project
+
+```bash
+adist view src/index.ts
+```
+
+### View configuration file
+
+```bash
+adist view package.json
+```
+
+### View nested file
+
+```bash
+adist view src/components/Button/index.tsx
+```
+
+## Output Format
+
+```
+File: src/index.ts
+Location: /home/user/project/src/index.ts
+
+[Syntax-highlighted file contents]
+```
+
+## File Resolution
+
+### Search Order
+
+1. **Current working directory**
+   - `./file`
+   - Relative to where command is run
+
+2. **Current project directory**
+   - Falls back if not found in CWD
+   - Uses project path from config
+
+### Absolute Paths
+
+Absolute paths work from any location:
+
+```bash
+adist view /home/user/project/src/app.js
+```
+
+## Error Handling
+
+```bash
+# File not found
+✘ Error viewing file: ENOENT: no such file or directory
+
+# No project selected
+No project is currently selected. Run "adist init" or "adist switch" first.
+
+# Permission denied
+✘ Error viewing file: EACCES: permission denied
+```
+
+## Use Cases
+
+- Quick preview of files from search results
+- View files without opening editor
+- Check file contents during development
+- Review code with syntax highlighting in terminal
+
+## Comparison with Other Tools
+
+| Tool | Syntax Highlighting | Project-Aware | Line Numbers |
+|------|-------------------|---------------|-------------|
+| `cat` | No | No | No |
+| `bat` | Yes | No | Yes |
+| `adist view` | Yes | Yes | Yes |
+
+## Tips
+
+- Combine with `adist get` to find then view files
+- Use relative paths when inside project directory
+- Output can be piped to other commands
+
+## Related Commands
+
+- [adist get](/cli/get) - Search for files to view
+- [adist query](/cli/query) - Ask about file contents

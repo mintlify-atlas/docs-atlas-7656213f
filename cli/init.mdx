@@ -1,0 +1,67 @@
+---
+title: adist init
+description: Initialize adist for a project directory
+---
+
+Initializes adist for the current directory, creating a new project and indexing its files.
+
+## Syntax
+
+```bash
+adist init <projectName>
+```
+
+## Arguments
+
+<ParamField path="projectName" type="string" required>
+  Name for the project. Must be unique across all your adist projects.
+</ParamField>
+
+## Options
+
+During initialization, you will be prompted:
+
+<ParamField path="summarize" type="boolean">
+  Enable LLM summarization for the project. Requires `ANTHROPIC_API_KEY` environment variable.
+  
+  **Note:** Enabling summarization will incur API costs.
+</ParamField>
+
+## Behavior
+
+1. Creates a new project with the specified name associated with the current directory
+2. Checks for name conflicts with existing projects
+3. Prompts for optional LLM summarization
+4. Generates a unique project ID (timestamp-based)
+5. Sets the new project as the current active project
+6. Indexes all project files using both legacy and block-based indexing
+7. Optionally generates file summaries if enabled
+
+## Examples
+
+### Basic initialization
+
+```bash
+adist init my-project
+```
+
+### With summarization enabled
+
+When prompted, enter `y` to enable summarization:
+
+```bash
+adist init my-api
+# Would you like to enable LLM summarization? (y/N): y
+```
+
+## Environment Variables
+
+<ParamField path="ANTHROPIC_API_KEY" type="string">
+  Required if you enable summarization during initialization.
+</ParamField>
+
+## Related Commands
+
+- [adist switch](/cli/switch) - Switch between projects
+- [adist reindex](/cli/reindex) - Reindex project files
+- [adist list](/cli/list) - List all projects

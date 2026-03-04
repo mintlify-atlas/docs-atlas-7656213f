@@ -1,80 +1,248 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quick start
+description: Get up and running with Adist in minutes by initializing your first project
 ---
 
-## Get started in three steps
+This guide will walk you through setting up your first project with Adist and exploring its core features.
 
-Get your documentation site running locally and make your first customization.
+## Prerequisites
 
-### Step 1: Set up your local environment
+Before you begin, make sure you have:
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+- Installed Adist globally (`npm install -g adist`)
+- Configured an LLM provider using `adist llm-config`
+- Set your API key environment variable (if using Anthropic or OpenAI)
+
+<Check>
+Need help with installation? Check out the [installation guide](/installation).
+</Check>
+
+## Initialize your first project
+
+<Steps>
+  <Step title="Navigate to your project directory">
+    Open your terminal and change to the directory you want to index:
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    ```bash
+    cd /path/to/your/project
+    ```
+  </Step>
+  
+  <Step title="Run the init command">
+    Initialize Adist for your project:
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+    ```bash
+    adist init my-project
+    ```
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    Replace `my-project` with a meaningful name for your project.
+  </Step>
+  
+  <Step title="Choose summarization option">
+    Adist will ask if you want to enable LLM summarization:
+    
+    ```
+    Would you like to enable LLM summarization? (y/N):
+    ```
+    
+    - Type `y` to generate AI summaries of your code (incurs API costs)
+    - Type `n` or press Enter to skip summarization (you can enable it later)
+    
+    <Warning>
+    Enabling summarization will make API calls to your configured LLM provider, which may incur costs depending on your project size.
+    </Warning>
+  </Step>
+  
+  <Step title="Wait for indexing to complete">
+    Adist will:
+    1. Scan all supported files in your directory
+    2. Create block-based indices for semantic search
+    3. Optionally generate summaries (if enabled)
+    
+    This may take a few minutes depending on your project size.
+  </Step>
+</Steps>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+<Check>
+Your project is now indexed and ready to use!
+</Check>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+## Try your first search
 
-### Step 3: Go live
+Now that your project is indexed, you can search it using natural language:
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+```bash
+adist get "authentication logic"
+```
+
+This will return relevant code blocks related to authentication in your project.
+
+<Tip>
+Use specific, descriptive queries for better results. The search uses semantic understanding, so it can find conceptually related code even if the exact words don't match.
+</Tip>
+
+## Ask questions about your code
+
+Use the `query` command to ask specific questions:
+
+```bash
+adist query "How does the authentication system work?"
+```
+
+The AI will:
+1. Search for relevant code in your project
+2. Analyze the context
+3. Provide a detailed explanation with code references
+
+<CodeGroup>
+```bash Default mode (with code highlighting)
+adist query "How does the authentication system work?"
+```
+
+```bash Streaming mode (real-time responses)
+adist query "How does the authentication system work?" --stream
+```
+</CodeGroup>
+
+## Start an interactive chat session
+
+For a more conversational experience, use chat mode:
+
+```bash
+adist chat
+```
+
+This starts an interactive session where you can:
+- Ask multiple questions in sequence
+- Build on previous answers with follow-up questions
+- Get code explanations with syntax highlighting
+
+<Info>
+Type `/exit` to end the chat session.
+</Info>
+
+### Chat example
+
+```
+$ adist chat
+
+💬 Chat Mode - Ask questions about your project
+Type /exit to quit
+
+You: What are the main components of this project?
+
+AI: Based on the codebase, the main components are:
+1. Authentication module (src/auth/)
+2. API routes (src/routes/)
+3. Database layer (src/db/)
+...
+
+You: Tell me more about the authentication module
+
+AI: The authentication module uses JWT tokens...
+```
+
+## Working with multiple projects
+
+### List all projects
+
+View all your indexed projects:
+
+```bash
+adist list
+```
+
+### Switch between projects
+
+Switch to a different project:
+
+```bash
+adist switch other-project
+```
+
+Or run without a project name to select from a list interactively:
+
+```bash
+adist switch
+```
+
+### Reindex a project
+
+If you've made changes to your code, reindex the current project:
+
+```bash
+adist reindex
+```
+
+To also regenerate summaries:
+
+```bash
+adist reindex --summarize
+```
+
+<Warning>
+Reindexing with `--summarize` will regenerate all summaries and incur API costs.
+</Warning>
+
+## View project summaries
+
+If you enabled summarization during initialization, you can view summaries:
+
+<CodeGroup>
+```bash View overall project summary
+adist summary
+```
+
+```bash View specific file summary
+adist summary --file src/index.ts
+```
+</CodeGroup>
+
+## Common commands reference
+
+Here's a quick reference of the most commonly used commands:
+
+| Command | Description |
+|---------|-------------|
+| `adist init <name>` | Initialize a new project |
+| `adist get "<query>"` | Search for code using natural language |
+| `adist query "<question>"` | Ask AI questions about your code |
+| `adist chat` | Start an interactive chat session |
+| `adist list` | List all indexed projects |
+| `adist switch <name>` | Switch to a different project |
+| `adist reindex` | Reindex the current project |
+| `adist summary` | View project or file summaries |
+| `adist llm-config` | Configure LLM provider settings |
+
+## Tips for better results
+
+<CardGroup cols={2}>
+  <Card title="Use descriptive queries" icon="message-question">
+    Instead of "auth", try "user authentication and login flow"
+  </Card>
+  
+  <Card title="Ask specific questions" icon="bullseye">
+    "How are API errors handled?" works better than "tell me about errors"
+  </Card>
+  
+  <Card title="Reindex after major changes" icon="rotate">
+    Run `adist reindex` after adding new features or refactoring
+  </Card>
+  
+  <Card title="Use chat for exploration" icon="comments">
+    Chat mode is great for understanding unfamiliar codebases
+  </Card>
+</CardGroup>
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
+Now that you know the basics, explore more features:
 
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
+- Learn about [block-based indexing](/features/block-indexing) for understanding how Adist analyzes code
+- Explore [advanced search techniques](/features/search) for finding exactly what you need
+- Set up [multiple LLM providers](/configuration/llm-providers) to compare results
+- Check out [best practices](/guides/best-practices) for working with large codebases
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+Need help? Run `adist --help` or `adist <command> --help` for detailed command information.
 </Note>

@@ -1,0 +1,307 @@
+---
+title: "Searching"
+description: "Discover how to search your codebase with semantic queries and natural language"
+---
+
+## Overview
+
+Adist provides powerful search capabilities that go beyond simple text matching. Using block-based semantic search, you can find relevant code and documentation using natural language queries.
+
+## Search Methods
+
+Adist offers two main search commands:
+
+### Document Search
+
+Find files matching your query:
+
+```bash
+adist get "authentication logic"
+```
+
+This returns relevant documents from your indexed project.
+
+### AI-Powered Query
+
+Get AI-generated answers with code context:
+
+```bash
+adist query "how does authentication work?"
+```
+
+The AI analyzes relevant code blocks and provides detailed answers with syntax highlighting.
+
+<Tip>
+  Use `adist query` when you want explanations, and `adist get` when you just need to find files.
+</Tip>
+
+## How Block Search Works
+
+The block search engine:
+
+1. **Normalizes the query**: Converts to lowercase and extracts key terms
+2. **Scores each block**: Matches against content, titles, and metadata
+3. **Includes context**: Adds parent and child blocks for better understanding
+4. **Ranks results**: Sorts by relevance score
+5. **Returns top matches**: Shows the most relevant blocks from up to 5 documents
+
+### Scoring Algorithm
+
+Blocks are scored based on:
+
+**Title Matches** (highest priority)
+- Title contains term: +5 points
+- Exact title match: +10 points
+
+**Content Matches**
+- Term appears in content: +1 point
+- Frequency bonus: up to +1 point
+
+**Metadata Matches**
+- Function/class name: +3 points
+- Function signature: +2 points
+
+**Block Type Multipliers**
+- Code blocks (function, method, class): 1.2x
+- Headings: 1.1x
+
+<Info>
+  The search engine automatically filters out common words like "and", "or", "the" to focus on meaningful terms.
+</Info>
+
+## Query Command Features
+
+### Basic Usage
+
+```bash
+adist query "your question here"
+```
+
+Example queries:
+```bash
+adist query "how does the parser work?"
+adist query "what are the API endpoints?"
+adist query "explain the authentication flow"
+```
+
+### Streaming Responses
+
+Get real-time AI responses as they're generated:
+
+```bash
+adist query "how does indexing work?" --stream
+```
+
+<Warning>
+  Streaming mode provides faster initial response but may have limited code highlighting.
+</Warning>
+
+### Default Mode
+
+Without streaming, the query command:
+- Shows a loading spinner while generating
+- Applies full syntax highlighting to code blocks
+- Formats markdown properly
+
+## Search Results Display
+
+When you run a query, you'll see:
+
+### Debug Information
+
+```bash
+Debug Info:
+Found 3 document(s) with 7 relevant blocks
+
+Document tree:
+└── src
+    ├── utils
+    │   └── indexer.ts (3 blocks)
+    │       ├── function: indexProject (lines 31-94)
+    │       ├── function: parseDocument (lines 105-156)
+    │       └── class: BlockIndexer (lines 21-254)
+    └── commands
+        └── query.ts (2 blocks)
+            ├── function: queryCommand (lines 8-344)
+            └── function: performSearch (lines 289-389)
+```
+
+This tree view shows:
+- File paths in a hierarchical structure
+- Number of relevant blocks per file
+- Block types and line numbers
+- First 3 blocks per file (with "... and N more" if applicable)
+
+### AI Answer
+
+The AI provides:
+- Direct answer to your question
+- Code snippets with syntax highlighting
+- References to specific files and line numbers
+- Contextual explanations
+
+### Cost and Metadata
+
+```bash
+Estimated cost: $0.0042 (using cached context) · complexity: low
+```
+
+Shows:
+- API cost for the query
+- Whether cached context was used (reduces cost)
+- Query complexity level (low, medium, high)
+
+## Summary Queries
+
+Adist recognizes summary-related questions:
+
+```bash
+adist query "summary"
+adist query "what is this project?"
+adist query "overview of the codebase"
+```
+
+For these queries, the AI prioritizes:
+- Overall project summary (if available)
+- Document-level summaries
+- High-level structural information
+
+<Tip>
+  Generate summaries during indexing with:
+  ```bash
+  adist reindex --summarize
+  ```
+</Tip>
+
+## Context Caching
+
+For improved performance and reduced costs, Adist uses context caching:
+
+- **First query**: Creates a cache of project context
+- **Subsequent queries**: Reuses cached context
+- **Cache key**: Based on project ID
+- **Benefits**: Faster responses, lower API costs
+
+<Info>
+  When you see "(using cached context)", the AI is reusing previously indexed project information.
+</Info>
+
+## Code Highlighting
+
+The query command automatically detects and highlights code in multiple languages:
+
+<CodeGroup>
+```javascript JavaScript
+function authenticate(user, password) {
+  return bcrypt.compare(password, user.passwordHash);
+}
+```
+
+```python Python
+def authenticate(user: User, password: str) -> bool:
+    return bcrypt.checkpw(password, user.password_hash)
+```
+
+```go Go
+func Authenticate(user User, password string) bool {
+    return bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(password)) == nil
+}
+```
+</CodeGroup>
+
+## Search Tips
+
+### Be Specific
+
+<Accordion title="Good vs. Better Queries">
+  **Good**: "authentication"
+  
+  **Better**: "how does user authentication work?"
+  
+  **Best**: "explain the JWT token validation in the authentication middleware"
+</Accordion>
+
+### Use Natural Language
+
+```bash
+adist query "what happens when a user logs in?"
+adist query "how is data validated before saving?"
+adist query "where are API routes defined?"
+```
+
+### Ask Follow-up Questions in Chat
+
+For interactive conversations, use chat mode:
+
+```bash
+adist chat
+```
+
+See [AI Chat](/features/ai-chat) for more details.
+
+## Legacy Search
+
+The previous full-document search is still available:
+
+```bash
+adist legacy-get "search term"
+```
+
+This searches entire documents rather than semantic blocks.
+
+## Troubleshooting
+
+### No Results Found
+
+If your search returns no results:
+
+1. **Ensure the project is indexed**:
+   ```bash
+   adist reindex
+   ```
+
+2. **Check the current project**:
+   ```bash
+   adist list
+   ```
+   The current project shows with a green arrow (→)
+
+3. **Try broader terms**: Start with general terms and narrow down
+
+### LLM Errors
+
+If you get LLM-related errors:
+
+```bash
+adist llm-config
+```
+
+This configures your LLM provider (Anthropic, OpenAI, or Ollama).
+
+## Performance
+
+### Search Speed
+
+Block-based search is typically very fast:
+- Small projects (< 100 files): Instant
+- Medium projects (100-1000 files): < 1 second  
+- Large projects (1000+ files): 1-3 seconds
+
+### Query Response Time
+
+AI query response time depends on:
+- LLM provider (Ollama is slower but free)
+- Query complexity
+- Number of relevant blocks
+- Whether context is cached
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Interactive Chat" icon="comments" href="/features/ai-chat">
+    Have conversations about your code
+  </Card>
+  <Card title="Project Management" icon="folder-tree" href="/features/project-management">
+    Manage multiple projects
+  </Card>
+</CardGroup>

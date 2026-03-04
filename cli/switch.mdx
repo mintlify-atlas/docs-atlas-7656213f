@@ -1,0 +1,97 @@
+---
+title: adist switch
+description: Switch between different adist projects
+---
+
+Switch the currently active adist project. You can specify a project name directly or choose from an interactive list.
+
+## Syntax
+
+```bash
+adist switch [projectName]
+```
+
+## Arguments
+
+<ParamField path="projectName" type="string">
+  Optional name of the project to switch to. If omitted, displays an interactive selection menu.
+</ParamField>
+
+## Behavior
+
+### With Project Name
+
+When you provide a project name:
+
+1. Searches for the project by name
+2. Switches to it immediately if found
+3. Shows available projects if name not found
+
+### Without Project Name
+
+When no project name is provided:
+
+1. Displays an interactive list of all projects
+2. Use arrow keys to navigate
+3. Press Enter to select
+4. Shows 10 projects per page for easy scrolling
+
+## Examples
+
+### Switch to specific project
+
+```bash
+adist switch my-project
+```
+
+### Interactive selection
+
+```bash
+adist switch
+# Displays:
+# ? Select a project:
+#   > my-project
+#     another-project
+#     api-server
+```
+
+### Switch to project with similar name
+
+```bash
+adist switch api
+# If exact match not found, shows:
+# ✘ Project "api" not found.
+# 📚 Available Projects:
+#   api-server
+#   api-client
+```
+
+## Output
+
+On successful switch:
+
+```
+✓ Switched to project: my-project
+Run adist get "<query>" to search for documents.
+```
+
+## Error Handling
+
+- If no projects exist, suggests using `adist init`
+- If project name not found, lists available projects
+- Validates project data before switching
+
+## Current Project Indicator
+
+After switching, the current project is used by:
+
+- [adist get](/cli/get) - Search in current project
+- [adist query](/cli/query) - Query current project
+- [adist chat](/cli/chat) - Chat about current project
+- [adist reindex](/cli/reindex) - Reindex current project
+- [adist summary](/cli/summary) - View current project summary
+
+## Related Commands
+
+- [adist list](/cli/list) - View all projects with current project indicator
+- [adist init](/cli/init) - Create a new project

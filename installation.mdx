@@ -1,0 +1,197 @@
+---
+title: Installation
+description: Install Adist globally using npm and configure your LLM provider
+---
+
+Adist is distributed as an npm package and can be installed globally to use across all your projects.
+
+## Prerequisites
+
+Before installing Adist, ensure you have:
+
+- **Node.js** version 16 or higher
+- **npm** (comes with Node.js)
+
+## Install Adist
+
+Install Adist globally using npm:
+
+```bash
+npm install -g adist
+```
+
+Verify the installation by checking the version:
+
+```bash
+adist --version
+```
+
+## Configure LLM provider
+
+Adist requires an LLM provider for AI-powered features like summarization, queries, and chat. You have three options:
+
+<Steps>
+  <Step title="Choose your LLM provider">
+    Decide which provider works best for you:
+    
+    - **Anthropic Claude** - Powerful cloud-based models (requires API key)
+    - **OpenAI** - GPT models with excellent performance (requires API key)
+    - **Ollama** - Run models locally with no API costs (requires local installation)
+  </Step>
+  
+  <Step title="Set up your chosen provider">
+    <Tabs>
+      <Tab title="Anthropic Claude">
+        Set your Anthropic API key as an environment variable:
+        
+        ```bash
+        export ANTHROPIC_API_KEY='your-api-key-here'
+        ```
+        
+        <Tip>
+        Add this to your `.bashrc`, `.zshrc`, or `.bash_profile` to make it persistent across terminal sessions.
+        </Tip>
+        
+        Get your API key from [Anthropic Console](https://console.anthropic.com/).
+      </Tab>
+      
+      <Tab title="OpenAI">
+        Set your OpenAI API key as an environment variable:
+        
+        ```bash
+        export OPENAI_API_KEY='your-api-key-here'
+        ```
+        
+        <Tip>
+        Add this to your `.bashrc`, `.zshrc`, or `.bash_profile` to make it persistent across terminal sessions.
+        </Tip>
+        
+        Get your API key from [OpenAI Platform](https://platform.openai.com/).
+      </Tab>
+      
+      <Tab title="Ollama">
+        Install Ollama from [ollama.com/download](https://ollama.com/download).
+        
+        Pull a model to use with Adist:
+        
+        ```bash
+        ollama pull llama3
+        ```
+        
+        <Tip>
+        Ollama runs models locally, so there are no API costs. However, you'll need sufficient hardware (GPU recommended).
+        </Tip>
+      </Tab>
+    </Tabs>
+  </Step>
+  
+  <Step title="Run LLM configuration command">
+    Configure Adist to use your chosen provider:
+    
+    ```bash
+    adist llm-config
+    ```
+    
+    This interactive command will guide you through:
+    - Selecting your LLM provider (Anthropic, OpenAI, or Ollama)
+    - Choosing your preferred model
+    - Customizing settings (like Ollama API URL)
+  </Step>
+</Steps>
+
+## Verify installation
+
+Check that Adist is properly installed and accessible:
+
+<CodeGroup>
+```bash Check version
+adist --version
+```
+
+```bash View help
+adist --help
+```
+
+```bash List available commands
+adist --help
+```
+</CodeGroup>
+
+You should see output showing the version number and available commands.
+
+## Update Adist
+
+To update Adist to the latest version:
+
+```bash
+npm update -g adist
+```
+
+<Warning>
+Because Adist is in active development, breaking changes may occur between versions. Check the release notes before updating.
+</Warning>
+
+## Uninstall Adist
+
+If you need to uninstall Adist:
+
+```bash
+npm uninstall -g adist
+```
+
+This removes the CLI tool but does not delete your project configurations. To remove all Adist data:
+
+<CodeGroup>
+```bash macOS
+rm -rf ~/Library/Application\ Support/adist
+```
+
+```bash Linux
+rm -rf ~/.config/adist
+```
+
+```bash Windows (PowerShell)
+Remove-Item -Recurse -Force $env:APPDATA\adist
+```
+</CodeGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Command not found after installation">
+    If you get a "command not found" error after installing:
+    
+    1. Make sure npm's global bin directory is in your PATH
+    2. Try running `npm bin -g` to see where global packages are installed
+    3. Add that directory to your PATH if it's not already there
+    
+    For example, add this to your `.bashrc` or `.zshrc`:
+    ```bash
+    export PATH="$(npm bin -g):$PATH"
+    ```
+  </Accordion>
+  
+  <Accordion title="Permission errors on installation">
+    If you encounter permission errors:
+    
+    1. **Don't use sudo** - this can cause permission issues
+    2. Configure npm to use a different directory for global packages
+    3. Use a Node version manager like `nvm` or `fnm`
+    
+    See [npm documentation](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally) for detailed solutions.
+  </Accordion>
+  
+  <Accordion title="LLM provider not working">
+    If your LLM provider isn't working:
+    
+    1. Verify your API key is set correctly: `echo $ANTHROPIC_API_KEY` or `echo $OPENAI_API_KEY`
+    2. For Ollama, ensure the service is running: `ollama list`
+    3. Run `adist llm-config` to reconfigure your provider
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<Card title="Quick start guide" icon="rocket" href="/quickstart">
+  Learn how to initialize your first project and start using Adist
+</Card>

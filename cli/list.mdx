@@ -1,0 +1,116 @@
+---
+title: adist list
+description: List all indexed projects with status information
+---
+
+Display all adist projects with their status, paths, and metadata.
+
+## Syntax
+
+```bash
+adist list [options]
+```
+
+## Options
+
+<ParamField path="-d, --debug" type="boolean">
+  Show debug information including number of indexed files per project.
+</ParamField>
+
+## Output Format
+
+For each project, displays:
+
+- **Current indicator:** `→` for active project
+- **Project name** (bold)
+- **Status indicators:**
+  - `[indexed]` or `[not-indexed]` - Index status
+  - `[summaries]` or `[no-summaries]` - Summary availability
+- **Project ID** - Unique identifier
+- **Path** - Full filesystem path
+
+### With Debug Flag
+
+Additionally shows:
+- Number of indexed files
+
+## Examples
+
+### Basic list
+
+```bash
+adist list
+```
+
+Output:
+```
+Projects:
+
+→ my-project [indexed] [summaries]
+  ID: 1234567890
+  Path: /home/user/projects/my-project
+
+  another-project [indexed] [no-summaries]
+  ID: 1234567891
+  Path: /home/user/projects/another-project
+
+  old-project [not-indexed] [no-summaries]
+  ID: 1234567892
+  Path: /home/user/projects/old-project
+```
+
+### List with debug info
+
+```bash
+adist list --debug
+```
+
+Additional output per project:
+```
+  Indexed files: 42
+```
+
+## Status Indicators
+
+<ParamField path="indexed" type="status">
+  **Green:** Project has been indexed and is searchable
+  
+  **Red (not-indexed):** Project needs indexing via `adist reindex`
+</ParamField>
+
+<ParamField path="summaries" type="status">
+  **Green:** Project has AI-generated summaries
+  
+  **Red (no-summaries):** Run `adist reindex --summarize` to generate
+</ParamField>
+
+## Current Project
+
+The current project is indicated by a green arrow (`→`) and is the default target for:
+
+- Search commands (`adist get`, `adist query`)
+- Chat sessions (`adist chat`)
+- Reindexing without project name (`adist reindex`)
+- Summary views (`adist summary`)
+
+## Empty State
+
+If no projects exist:
+
+```
+No projects found. Use "adist init <projectName>" to create one.
+```
+
+## Use Cases
+
+- Check which project is currently active
+- Verify project index and summary status
+- Get project IDs for troubleshooting
+- Review all managed projects at a glance
+
+## Related Commands
+
+- [adist switch](/cli/switch) - Change current project
+- [adist init](/cli/init) - Add new project
+- [adist reindex](/cli/reindex) - Update project index
+- [adist remove-project](/cli/remove) - Remove a project

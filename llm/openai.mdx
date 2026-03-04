@@ -1,0 +1,322 @@
+---
+title: "OpenAI Integration"
+description: "Use OpenAI's GPT models for AI-powered code analysis with Adist"
+---
+
+## Overview
+
+Adist integrates with OpenAI's API to provide AI-driven code analysis using GPT models. OpenAI offers powerful language models with excellent code understanding and generation capabilities.
+
+## Available Models
+
+You can choose from three GPT models:
+
+<CardGroup cols={3}>
+  <Card title="GPT-4o" icon="star">
+    Latest and most capable model (default)
+  </Card>
+  <Card title="GPT-4 Turbo" icon="bolt">
+    Fast and powerful GPT-4 variant
+  </Card>
+  <Card title="GPT-3.5 Turbo" icon="zap">
+    Fastest and most cost-effective option
+  </Card>
+</CardGroup>
+
+## Setup
+
+<Steps>
+  <Step title="Get an API Key">
+    Sign up for an OpenAI API key at [platform.openai.com](https://platform.openai.com/api-keys)
+  </Step>
+  
+  <Step title="Set Environment Variable">
+    Add your API key to your environment:
+    
+    <Tabs>
+      <Tab title="Linux/macOS">
+        ```bash
+        export OPENAI_API_KEY='your-api-key-here'
+        ```
+        
+        To make it permanent, add the line to your `~/.bashrc`, `~/.zshrc`, or `~/.profile`:
+        
+        ```bash
+        echo 'export OPENAI_API_KEY="your-api-key-here"' >> ~/.bashrc
+        source ~/.bashrc
+        ```
+      </Tab>
+      
+      <Tab title="Windows (PowerShell)">
+        ```powershell
+        $env:OPENAI_API_KEY='your-api-key-here'
+        ```
+        
+        To make it permanent:
+        
+        ```powershell
+        [System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'your-api-key-here', 'User')
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+  
+  <Step title="Configure Adist">
+    Run the LLM configuration command:
+    
+    ```bash
+    adist llm-config
+    ```
+    
+    Select:
+    1. **OpenAI** as your provider
+    2. Your preferred GPT model (GPT-4o, GPT-4 Turbo, or GPT-3.5 Turbo)
+  </Step>
+  
+  <Step title="Verify Setup">
+    Test the integration by querying your project:
+    
+    ```bash
+    adist query "What does this project do?"
+    ```
+  </Step>
+</Steps>
+
+## Features
+
+### Context Caching
+
+The OpenAI service implementation includes intelligent context caching:
+
+- **Topic Identification**: Automatically identifies query topics using AI
+- **Cache Duration**: Contexts are cached for 30 minutes
+- **Related Context Merging**: Similar topics are merged for better responses
+- **Cache Cleanup**: Old entries are automatically removed
+
+### Query Complexity Estimation
+
+Queries are analyzed and categorized as:
+
+- **Low Complexity**: Simple questions (< 8 words, no technical terms)
+- **Medium Complexity**: Standard questions (8-15 words or basic technical terms)
+- **High Complexity**: Complex questions (> 15 words, code snippets, comparisons)
+
+Context allocation is optimized based on complexity.
+
+### Document Relevance Scoring
+
+The service scores documents based on:
+
+- Code blocks and syntax
+- Comments and documentation
+- Function definitions (`function`, `=>`)
+- Class definitions (`class`, `interface`)
+
+Documents with higher relevance scores receive more context space.
+
+### Conversation Analysis
+
+In chat mode, the service analyzes conversation patterns to detect:
+
+- **Follow-up Questions**: Short queries or questions building on previous context
+- **Deep Dives**: Extended conversations on related topics
+
+Context is adjusted dynamically based on conversation state.
+
+## Code Reference
+
+The OpenAI service is implemented in `/home/daytona/workspace/source/src/utils/openai.ts:20`
+
+### Key Methods
+
+#### summarizeFile
+
+Generates comprehensive summaries of individual files:
+
+```typescript
+async summarizeFile(content: string, filePath: string): Promise<SummaryResult>
+```
+
+#### generateOverallSummary
+
+Creates a high-level project overview from file summaries:
+
+```typescript
+async generateOverallSummary(fileSummaries: { path: string; summary: string }[]): Promise<SummaryResult>
+```
+
+#### queryProject
+
+Answers questions about your project with context optimization:
+
+```typescript
+async queryProject(
+  query: string,
+  context: { content: string; path: string }[],
+  projectId: string,
+  streamCallback?: (chunk: string) => void
+): Promise<SummaryResult>
+```
+
+#### chatWithProject
+
+Enables conversational interactions with full history support:
+
+```typescript
+async chatWithProject(
+  messages: { role: 'user' | 'assistant'; content: string }[],
+  context: { content: string; path: string }[],
+  projectId: string,
+  streamCallback?: (chunk: string) => void
+): Promise<SummaryResult>
+```
+
+## Pricing
+
+GPT-4o pricing:
+- **Input**: $10 per million tokens
+- **Output**: $30 per million tokens
+
+Adist displays the cost of each operation when using OpenAI's API.
+
+<Note>
+  Token usage is optimized through context caching and intelligent document selection.
+</Note>
+
+## Configuration Options
+
+### Context Limits
+
+- **Maximum Context Length**: 50,000 characters
+- **Cache Timeout**: 30 minutes
+- **Dynamic Adjustment**: Context size varies based on query complexity
+
+### Optimization Strategies
+
+The service employs several strategies to optimize API usage:
+
+1. **Context Reuse**: Related queries share cached context
+2. **Relevance Filtering**: Only the most relevant documents are included
+3. **Smart Truncation**: Documents are truncated based on relevance scores
+4. **Project Summaries**: High-level overviews supplement missing context
+
+## Streaming Support
+
+Both query and chat operations support streaming responses:
+
+```bash
+# Streaming query
+adist query "Explain the authentication system" --stream
+
+# Streaming chat
+adist chat --stream
+```
+
+Streaming provides:
+- Real-time response generation
+- Lower perceived latency
+- Token usage estimation (exact counts unavailable during streaming)
+
+<Warning>
+  Code highlighting may be limited in streaming mode. Use default mode for better formatting.
+</Warning>
+
+## Best Practices
+
+<Warning>
+  Keep your API key secure. Never commit it to version control or share it publicly.
+</Warning>
+
+<Tabs>
+  <Tab title="Efficient Queries">
+    - Ask specific, focused questions
+    - Use streaming mode for long responses
+    - Leverage chat mode for related follow-up questions
+  </Tab>
+  
+  <Tab title="Cost Optimization">
+    - Use cached contexts when possible (related queries)
+    - Choose GPT-3.5 Turbo for simple queries
+    - Use GPT-4o for balanced performance (default)
+    - Monitor your usage at platform.openai.com
+  </Tab>
+  
+  <Tab title="Quality Results">
+    - Ensure your project is properly indexed
+    - Use descriptive file names and comments
+    - Generate summaries with `adist reindex --summarize`
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+### API Key Not Found
+
+If you see "OPENAI_API_KEY environment variable is required":
+
+1. Verify the environment variable is set: `echo $OPENAI_API_KEY`
+2. Restart your terminal after setting the variable
+3. Check for typos in the variable name
+
+### Rate Limits
+
+If you encounter rate limiting:
+
+- Wait a few moments before retrying
+- Consider reducing query frequency
+- Check your API usage at platform.openai.com
+- Upgrade your OpenAI plan if needed
+
+### Poor Response Quality
+
+- Ensure your project is fully indexed: `adist reindex`
+- Generate file summaries: `adist reindex --summarize`
+- Try asking more specific questions
+- Use chat mode for context-aware follow-ups
+
+### Streaming Issues
+
+If streaming responses are incomplete or malformed:
+
+- Try non-streaming mode (remove `--stream` flag)
+- Check your network connection
+- Verify API key has proper permissions
+
+## Comparison with Other Providers
+
+<Tabs>
+  <Tab title="vs Anthropic">
+    **OpenAI Advantages:**
+    - Larger ecosystem and community
+    - More established API
+    - Multiple model tiers for cost optimization
+    
+    **Anthropic Advantages:**
+    - Larger context windows
+    - Better code understanding in some cases
+    - More transparent pricing
+  </Tab>
+  
+  <Tab title="vs Ollama">
+    **OpenAI Advantages:**
+    - More powerful models
+    - No local setup required
+    - Consistent performance
+    
+    **Ollama Advantages:**
+    - Free (no API costs)
+    - Complete privacy (runs locally)
+    - No internet required
+  </Tab>
+</Tabs>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Start Querying" icon="message-question" href="/cli/query">
+    Ask questions about your codebase
+  </Card>
+  <Card title="Start Chatting" icon="comments" href="/cli/chat">
+    Have conversations about your project
+  </Card>
+</CardGroup>

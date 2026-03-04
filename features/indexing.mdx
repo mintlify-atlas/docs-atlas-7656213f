@@ -1,0 +1,220 @@
+---
+title: "Indexing"
+description: "Learn how Adist indexes your projects for fast semantic search and AI-powered analysis"
+---
+
+## Overview
+
+Adist uses advanced block-based indexing to parse and organize your project files into semantic blocks. This enables precise document searching, contextual AI responses, and efficient codebase analysis.
+
+## Block-Based Indexing
+
+The default indexing method splits documents into semantic blocks such as functions, classes, methods, headings, and paragraphs. Each block is indexed individually with metadata, allowing for:
+
+- More precise searching and better context understanding
+- Improved AI interactions with relevant code snippets
+- Hierarchical structure preservation
+- Parent-child block relationships
+
+<Info>
+  Block-based indexing replaced the legacy full-document indexing in recent versions for better performance and accuracy.
+</Info>
+
+## Indexing Your Project
+
+### Initial Indexing
+
+When you initialize a new project, Adist automatically indexes all supported files:
+
+```bash
+adist init my-project
+```
+
+During initialization, you'll be prompted to enable LLM summarization:
+
+```bash
+Would you like to enable LLM summarization? (y/N):
+```
+
+If you choose yes, Adist will:
+1. Generate summaries for each indexed file
+2. Create an overall project summary
+3. Store summaries for faster future queries
+
+### Reindexing
+
+To update your project's index after code changes:
+
+```bash
+adist reindex
+```
+
+Add the `--summarize` flag to regenerate summaries:
+
+```bash
+adist reindex --summarize
+```
+
+<Tip>
+  Use verbose output to see detailed indexing progress:
+  ```bash
+  adist reindex --summarize --verbose
+  ```
+</Tip>
+
+### Reindexing All Projects
+
+You can reindex all configured projects at once:
+
+```bash
+adist reindex --all
+```
+
+Or with summarization:
+
+```bash
+adist reindex --all --summarize
+```
+
+## Supported File Types
+
+Adist indexes a wide variety of file types by default:
+
+<CodeGroup>
+```text Code Files
+.js, .jsx, .ts, .tsx
+.py, .go, .java, .cpp
+.rb, .php, .rs, .swift
+```
+
+```text Documentation
+.md, .markdown
+.rst, .asciidoc
+.txt
+```
+
+```text Configuration
+.json, .yaml, .yml
+.toml, .ini
+.env
+```
+</CodeGroup>
+
+## Include and Exclude Patterns
+
+The indexer uses fast-glob patterns to find files:
+
+**Default Include Patterns:**
+```javascript
+**/*.{js,jsx,ts,tsx,md,markdown,json,yaml,yml,toml}
+```
+
+**Default Exclude Patterns:**
+```javascript
+**/node_modules/**
+**/dist/**
+**/build/**
+**/.git/**
+**/coverage/**
+**/*.min.*
+```
+
+<Note>
+  Custom include/exclude patterns can be configured when using the indexing API programmatically.
+</Note>
+
+## Index Structure
+
+Each indexed document contains:
+
+- **Path**: Relative path from project root
+- **Title**: Document filename or first heading
+- **Last Modified**: Timestamp of last file modification
+- **Size**: File size in bytes
+- **Blocks**: Array of semantic blocks with:
+  - `id`: Unique block identifier
+  - `type`: Block type (function, class, heading, etc.)
+  - `content`: Block content
+  - `startLine` and `endLine`: Source location
+  - `parent`: Parent block ID (if applicable)
+  - `children`: Child block IDs
+  - `metadata`: Type-specific metadata (name, signature, etc.)
+  - `summary`: AI-generated summary (if enabled)
+
+## Performance Considerations
+
+### Indexing Speed
+
+Adist uses a progress bar to show indexing status:
+
+```
+█████████████████████ 100% | ETA: 0s | 143/143 files | src/utils/parser.ts
+```
+
+### Summarization Costs
+
+<Warning>
+  Enabling LLM summarization incurs API costs when using cloud providers (Anthropic, OpenAI). Use Ollama for free local summarization.
+</Warning>
+
+The tool displays:
+- File count and total size before summarizing
+- Estimated processing time
+- Actual costs after completion
+
+## Storage Location
+
+Indexes are stored in the configuration directory:
+
+<CodeGroup>
+```bash macOS
+~/Library/Application Support/adist
+```
+
+```bash Linux
+~/.config/adist
+```
+
+```bash Windows
+%APPDATA%\adist
+```
+</CodeGroup>
+
+## Advanced Options
+
+### Verbose Mode
+
+See detailed indexing information:
+
+```bash
+adist reindex --verbose
+```
+
+This shows:
+- LLM service status
+- Individual file processing
+- Summary generation progress
+- Error details
+
+### Legacy Indexing
+
+The previous full-document indexing method is still available:
+
+```bash
+adist legacy-reindex
+```
+
+<Info>
+  Legacy indexing is maintained for backward compatibility but block-based indexing is recommended for better results.
+</Info>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Search Your Code" icon="magnifying-glass" href="/features/searching">
+    Learn how to search indexed projects
+  </Card>
+  <Card title="AI Chat" icon="messages" href="/features/ai-chat">
+    Start chatting with your codebase
+  </Card>
+</CardGroup>

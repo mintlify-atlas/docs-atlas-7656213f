@@ -1,0 +1,481 @@
+---
+title: "Project Management"
+description: "Manage multiple codebases and switch between projects seamlessly"
+---
+
+## Overview
+
+Adist supports managing multiple projects, allowing you to index and search different codebases without conflicts. Each project maintains its own index, summaries, and configuration.
+
+## Creating Projects
+
+### Initialize a New Project
+
+Navigate to your project directory and run:
+
+```bash
+cd /path/to/your/project
+adist init my-project-name
+```
+
+This will:
+1. Create a unique project ID
+2. Store the project path
+3. Index all supported files
+4. Optionally generate summaries
+5. Set as the current project
+
+<Info>
+  The project name can be different from the directory name. Use descriptive names to easily identify projects.
+</Info>
+
+### Initialization Process
+
+```bash
+🚀 Initializing project...
+Name: my-awesome-api
+Path: /Users/dev/projects/awesome-api
+
+Would you like to enable LLM summarization? (y/N): y
+⚠️ Summarization enabled - this will incur API costs
+
+Indexing project files...
+█████████████████████ 100% | ETA: 0s | 143/143 files
+
+✓ Project initialized successfully!
+Run adist get "<query>" to search for documents.
+Run adist summary to view project summaries.
+```
+
+## Listing Projects
+
+View all configured projects:
+
+```bash
+adist list
+```
+
+Output:
+
+```bash
+Projects:
+
+→ my-awesome-api [indexed] [summaries]
+  ID: 1709876543210
+  Path: /Users/dev/projects/awesome-api
+
+  frontend-app [indexed] [no-summaries]
+  ID: 1709876123456  
+  Path: /Users/dev/projects/frontend
+
+  legacy-service [not-indexed] [no-summaries]
+  ID: 1709875987654
+  Path: /Users/dev/old-projects/legacy
+```
+
+### Status Indicators
+
+- **→** Green arrow: Currently selected project
+- **[indexed]**: Project has been indexed
+- **[not-indexed]**: Project needs indexing
+- **[summaries]**: LLM summaries available
+- **[no-summaries]**: No summaries generated
+
+<Tip>
+  Use the `--debug` flag to see additional information like file counts:
+  ```bash
+  adist list --debug
+  ```
+</Tip>
+
+## Switching Projects
+
+### Switch by Name
+
+Switch to a specific project:
+
+```bash
+adist switch my-project-name
+```
+
+Output:
+
+```bash
+✓ Switched to project: my-project-name
+Run adist get "<query>" to search for documents.
+```
+
+### Interactive Selection
+
+Run switch without a name for interactive selection:
+
+```bash
+adist switch
+```
+
+You'll see an interactive list:
+
+```bash
+? Select a project: (Use arrow keys)
+❯ my-awesome-api
+  frontend-app
+  legacy-service
+  data-pipeline
+  mobile-app
+```
+
+Use arrow keys to navigate and press Enter to select.
+
+<Note>
+  The interactive list shows 10 projects at a time. Scroll to see more if you have many projects.
+</Note>
+
+### Project Not Found
+
+If you try to switch to a non-existent project:
+
+```bash
+adist switch wrong-name
+
+✘ Project "wrong-name" not found.
+
+📚 Available Projects:
+  my-awesome-api
+  frontend-app
+  legacy-service
+```
+
+## Project Configuration
+
+Each project stores:
+
+### Basic Information
+
+```typescript
+{
+  name: "my-project",
+  path: "/absolute/path/to/project",
+  indexed: true,
+  lastIndexed: "2024-03-04T10:30:00.000Z",
+  hasSummaries: true
+}
+```
+
+### Associated Data
+
+- **Indexes**: `block-indexes.{projectId}`
+- **Summaries**: `summaries.{projectId}`
+- **Legacy Indexes**: `indexes.{projectId}` (if using legacy mode)
+
+## Managing Project Indexes
+
+### Check Index Status
+
+Use `list` to see which projects are indexed:
+
+```bash
+adist list
+```
+
+### Reindex Current Project
+
+```bash
+adist reindex
+```
+
+With summaries:
+
+```bash
+adist reindex --summarize
+```
+
+With verbose output:
+
+```bash
+adist reindex --summarize --verbose
+```
+
+### Reindex Specific Project
+
+```bash
+adist reindex my-project-name
+```
+
+### Reindex All Projects
+
+```bash
+adist reindex --all
+```
+
+Or with summaries:
+
+```bash
+adist reindex --all --summarize
+```
+
+Output:
+
+```bash
+🔄 Reindexing all projects
+⚠️ Summarization enabled
+
+Reindexing: my-awesome-api
+█████████████████████ 100% | 143/143 files
+
+Reindexing: frontend-app  
+█████████████████████ 100% | 87/87 files
+
+Reindexing: legacy-service
+█████████████████████ 100% | 234/234 files
+
+✓ Successfully reindexed 3 projects
+```
+
+## Removing Projects
+
+### Remove by Project ID
+
+```bash
+adist remove-project-id <project-id>
+```
+
+This removes the project configuration but doesn't delete files.
+
+<Warning>
+  This operation cannot be undone. You'll need to re-index if you want to use the project again.
+</Warning>
+
+### Remove by Project Name
+
+```bash
+adist remove-project <project-name>
+```
+
+### Remove Project Index
+
+Remove just the index data without removing the project:
+
+```bash
+adist remove-index <project-id>
+```
+
+Use this when you want to reindex from scratch.
+
+## Configuration Storage
+
+Projects are stored in the configuration directory:
+
+<CodeGroup>
+```bash macOS
+~/Library/Application Support/adist/config.json
+```
+
+```bash Linux
+~/.config/adist/config.json
+```
+
+```bash Windows  
+%APPDATA%\adist\config.json
+```
+</CodeGroup>
+
+### Configuration Structure
+
+```json
+{
+  "projects": {
+    "1709876543210": {
+      "name": "my-awesome-api",
+      "path": "/Users/dev/projects/awesome-api",
+      "indexed": true,
+      "lastIndexed": "2024-03-04T10:30:00.000Z",
+      "hasSummaries": true
+    }
+  },
+  "currentProject": "1709876543210",
+  "llmProvider": "anthropic",
+  "anthropicModel": "claude-3-sonnet-20240229"
+}
+```
+
+## Best Practices
+
+### Project Naming
+
+<Accordion title="Good Project Names">
+  - **my-api** ✅ Short and descriptive
+  - **frontend-v2** ✅ Includes version
+  - **client-portal** ✅ Describes purpose
+  - **data-pipeline-prod** ✅ Includes environment
+</Accordion>
+
+<Accordion title="Avoid">
+  - **project1** ❌ Not descriptive
+  - **test** ❌ Too generic
+  - **asdf** ❌ Meaningless
+  - **my project** ❌ Contains spaces (will work but harder to type)
+</Accordion>
+
+### Keep Indexes Updated
+
+Reindex after major changes:
+
+```bash
+# After merging a feature branch
+git merge feature/new-auth
+adist reindex
+
+# After pulling updates
+git pull origin main
+adist reindex
+```
+
+### Organize by Environment
+
+Consider separate projects for different environments:
+
+```bash
+adist init my-app-development
+adist init my-app-staging  
+adist init my-app-production
+```
+
+### Use Summaries Strategically
+
+<Steps>
+  <Step title="Enable for production codebases">
+    Summaries help understand large, stable projects:
+    ```bash
+    adist init main-api --summarize
+    ```
+  </Step>
+  
+  <Step title="Skip for frequently changing code">
+    Don't use summaries for projects that change constantly:
+    ```bash
+    adist init experimental-features
+    # Don't enable summaries
+    ```
+  </Step>
+  
+  <Step title="Regenerate periodically">
+    Update summaries after major refactors:
+    ```bash
+    adist reindex --summarize
+    ```
+  </Step>
+</Steps>
+
+## Common Workflows
+
+### Starting Your Day
+
+```bash
+# See all projects
+adist list
+
+# Switch to the one you're working on
+adist switch current-project
+
+# Update index with latest changes
+adist reindex
+
+# Start exploring
+adist chat
+```
+
+### Adding a New Project
+
+```bash
+# Clone the repository
+git clone https://github.com/org/new-project.git
+cd new-project
+
+# Initialize with Adist
+adist init new-project
+
+# Start searching
+adist query "how does this work?"
+```
+
+### Switching Between Projects
+
+```bash
+# Working on frontend
+adist switch frontend-app
+adist query "what are the main components?"
+
+# Switch to backend
+adist switch backend-api  
+adist query "how is authentication handled?"
+
+# Back to frontend
+adist switch frontend-app
+```
+
+## Troubleshooting
+
+### Duplicate Project Names
+
+```bash
+✘ Project with name "my-app" already exists.
+Please choose a different name or use "adist switch" to select it.
+```
+
+**Solution**: Use a different name or switch to the existing project.
+
+### Path No Longer Exists
+
+If a project directory was moved or deleted:
+
+```bash
+adist switch old-project
+# Project loads but searches fail
+
+adist remove-project old-project
+cd /new/path
+adist init old-project
+```
+
+### No Current Project
+
+```bash
+✘ No project is currently selected.
+Run "adist init" or "adist switch" first.
+```
+
+**Solution**: Initialize a new project or switch to an existing one.
+
+## Viewing Project Paths
+
+See all project paths:
+
+```bash
+adist paths
+```
+
+Output:
+
+```bash
+Project Paths:
+
+my-awesome-api
+  /Users/dev/projects/awesome-api
+
+frontend-app
+  /Users/dev/projects/frontend
+
+legacy-service  
+  /Users/dev/old-projects/legacy
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Start Indexing" icon="database" href="/features/indexing">
+    Learn about indexing options
+  </Card>
+  <Card title="Search Your Code" icon="search" href="/features/searching">
+    Discover search capabilities
+  </Card>
+</CardGroup>

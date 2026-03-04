@@ -1,0 +1,163 @@
+---
+title: "LLM Integration Overview"
+description: "Learn how Adist integrates with various LLM providers to power AI-driven code analysis"
+---
+
+## Introduction
+
+Adist provides powerful AI-powered features through integration with multiple Large Language Model (LLM) providers. You can use cloud-based providers like Anthropic Claude and OpenAI, or run models locally with Ollama.
+
+## Available LLM Providers
+
+Adist supports three LLM providers:
+
+<CardGroup cols={3}>
+  <Card title="Anthropic Claude" icon="brain" href="/llm/anthropic">
+    Cloud-based AI using Claude 3 models (Opus, Sonnet, Haiku)
+  </Card>
+  <Card title="OpenAI" icon="openai" href="/llm/openai">
+    Cloud-based AI using GPT-4o, GPT-4 Turbo, and GPT-3.5 Turbo
+  </Card>
+  <Card title="Ollama" icon="server" href="/llm/ollama">
+    Run AI models locally with no API costs
+  </Card>
+</CardGroup>
+
+## LLM-Powered Features
+
+Adist uses LLMs to provide several intelligent features:
+
+### Document Summarization
+
+Generate comprehensive summaries of your project files to help you understand large codebases quickly. Each file summary includes:
+- Purpose and functionality
+- Key components (classes, functions, modules)
+- Notable patterns and important details
+
+### Question Answering
+
+Ask specific questions about your codebase and get AI-powered answers based on semantic search and context analysis:
+
+```bash
+adist query "How does authentication work?"
+```
+
+### Interactive Chat
+
+Have natural conversations about your project with persistent context:
+
+```bash
+adist chat
+```
+
+The chat session maintains:
+- Conversation history within the session
+- Context awareness across multiple questions
+- Automatic retrieval of relevant documents
+
+### Streaming Responses
+
+All AI interactions support two modes:
+
+<Tabs>
+  <Tab title="Default Mode">
+    Shows a loading spinner while generating responses with full code highlighting:
+    
+    ```bash
+    adist query "Explain the authentication system"
+    ```
+  </Tab>
+  <Tab title="Streaming Mode">
+    Shows real-time responses as they're being generated:
+    
+    ```bash
+    adist query "Explain the authentication system" --stream
+    ```
+    
+    <Note>
+      Code highlighting may be limited in streaming mode.
+    </Note>
+  </Tab>
+</Tabs>
+
+## Smart Context Management
+
+Adist implements intelligent context optimization to improve response quality and reduce costs:
+
+### Topic-Based Caching
+
+The system automatically:
+- Identifies query topics using AI
+- Caches relevant context for 30 minutes
+- Reuses cached context for related queries
+- Merges related contexts when appropriate
+
+### Query Complexity Analysis
+
+Each query is analyzed for complexity (low, medium, high) based on:
+- Word count
+- Technical terms
+- Code snippets
+- Comparison indicators
+
+Context allocation is dynamically adjusted based on complexity.
+
+### Document Relevance Scoring
+
+Documents are scored based on:
+- Code blocks and examples
+- Comments and documentation
+- Function and class definitions
+- Query complexity requirements
+
+Higher-scoring documents receive more space in the context window.
+
+## Configuration
+
+Switch between LLM providers using the configuration command:
+
+```bash
+adist llm-config
+```
+
+This interactive command allows you to:
+- Select your preferred LLM provider
+- Choose specific models (Claude 3 Opus/Sonnet/Haiku, GPT-4o/GPT-4 Turbo/GPT-3.5 Turbo, or local Ollama models)
+- Configure API URLs (for Ollama)
+
+## Markdown Formatting
+
+All LLM responses are formatted using proper Markdown with:
+- Headers (`#`, `##`, `###`)
+- Bold (`**text**`) and italic (`*text*`)
+- Code blocks with syntax highlighting (```language```)
+- Inline code references (`` `code` ``)
+- Lists (bullet and numbered)
+
+<Note>
+  Syntax highlighting is automatically applied when code blocks specify the language (e.g., ```javascript, ```python, ```typescript).
+</Note>
+
+## Cost Tracking
+
+Adist tracks API costs for cloud-based providers:
+
+- **Anthropic Claude**: $3 per million tokens (Claude 3 Sonnet)
+- **OpenAI**: $10/million input tokens, $30/million output tokens (GPT-4o)
+- **Ollama**: Free (runs locally)
+
+Costs are displayed after each operation when using cloud providers.
+
+## Next Steps
+
+<CardGroup cols={3}>
+  <Card title="Anthropic Setup" icon="cloud" href="/llm/anthropic">
+    Configure Anthropic Claude for cloud-based AI
+  </Card>
+  <Card title="OpenAI Setup" icon="brain" href="/llm/openai">
+    Configure OpenAI GPT models
+  </Card>
+  <Card title="Local Setup" icon="server" href="/llm/ollama">
+    Run Ollama locally for free AI features
+  </Card>
+</CardGroup>

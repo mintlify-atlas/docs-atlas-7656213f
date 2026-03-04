@@ -1,0 +1,226 @@
+---
+title: adist llm-config
+description: Configure AI provider settings for queries and summaries
+---
+
+Interactive configuration wizard for setting up AI/LLM providers. Supports Anthropic Claude, OpenAI, and local Ollama.
+
+## Syntax
+
+```bash
+adist llm-config
+```
+
+## Supported Providers
+
+### Anthropic Claude
+
+**Requirements:**
+- `ANTHROPIC_API_KEY` environment variable
+
+**Available Models:**
+- Claude 3 Opus (most capable, slower)
+- Claude 3 Sonnet (recommended)
+- Claude 3 Haiku (fastest)
+
+### OpenAI
+
+**Requirements:**
+- `OPENAI_API_KEY` environment variable
+
+**Available Models:**
+- GPT-4o (recommended)
+- GPT-4 Turbo
+- GPT-3.5 Turbo
+
+### Ollama (Local)
+
+**Requirements:**
+- Ollama running locally
+- Models pulled via `ollama pull`
+
+**Configuration:**
+- API URL (default: `http://localhost:11434`)
+- Model selection from available models
+
+## Interactive Flow
+
+### 1. Provider Selection
+
+```
+? Select LLM provider:
+  > Anthropic Claude (requires API key)
+    OpenAI (requires API key)
+    Ollama (run locally)
+```
+
+### 2. Model Selection (Anthropic)
+
+```
+? Select Anthropic model:
+    Claude 3 Opus (most capable, slower)
+  > Claude 3 Sonnet (recommended)
+    Claude 3 Haiku (fastest)
+```
+
+### 3. Model Selection (OpenAI)
+
+```
+? Select OpenAI model:
+  > GPT-4o (recommended)
+    GPT-4 Turbo
+    GPT-3.5 Turbo
+```
+
+### 4. Ollama Configuration
+
+```
+? Ollama API URL: http://localhost:11434
+? Do you want to select a specific model? (Y/n)
+? Select a model:
+  > llama3
+    mistral
+    codellama
+```
+
+## Examples
+
+### Configure Anthropic Claude
+
+```bash
+export ANTHROPIC_API_KEY="your-api-key"
+adist llm-config
+# Select: Anthropic Claude
+# Select: Claude 3 Sonnet (recommended)
+```
+
+### Configure OpenAI
+
+```bash
+export OPENAI_API_KEY="your-api-key"
+adist llm-config
+# Select: OpenAI
+# Select: GPT-4o (recommended)
+```
+
+### Configure Ollama
+
+```bash
+# Start Ollama first
+ollama serve
+
+# Pull a model
+ollama pull llama3
+
+# Configure adist
+adist llm-config
+# Select: Ollama (run locally)
+# Enter URL: http://localhost:11434
+# Select model: llama3
+```
+
+## Environment Variables
+
+<ParamField path="ANTHROPIC_API_KEY" type="string">
+  API key for Anthropic Claude. Get one at [console.anthropic.com](https://console.anthropic.com)
+</ParamField>
+
+<ParamField path="OPENAI_API_KEY" type="string">
+  API key for OpenAI. Get one at [platform.openai.com](https://platform.openai.com)
+</ParamField>
+
+## Setting Environment Variables
+
+### Temporary (Current Session)
+
+```bash
+export ANTHROPIC_API_KEY="your-key-here"
+```
+
+### Permanent (Bash/Zsh)
+
+Add to `~/.bashrc` or `~/.zshrc`:
+
+```bash
+export ANTHROPIC_API_KEY="your-key-here"
+export OPENAI_API_KEY="your-key-here"
+```
+
+Then reload:
+
+```bash
+source ~/.bashrc  # or ~/.zshrc
+```
+
+## Ollama Setup
+
+### Install Ollama
+
+Visit [ollama.com/download](https://ollama.com/download)
+
+### Start Ollama
+
+```bash
+ollama serve
+```
+
+### Pull Models
+
+```bash
+ollama pull llama3
+ollama pull codellama
+ollama pull mistral
+```
+
+### List Available Models
+
+```bash
+ollama list
+```
+
+## Validation
+
+### Anthropic/OpenAI
+
+Checks for environment variable before allowing configuration.
+
+### Ollama
+
+- Tests connection to Ollama service
+- Retrieves available models
+- Allows configuration even if service is down (for later use)
+
+## Success Messages
+
+```bash
+# Anthropic
+✓ Anthropic Claude configured as LLM provider.
+  Model: claude-3-sonnet-20240229
+
+# OpenAI
+✓ OpenAI configured as LLM provider.
+  Model: gpt-4o
+
+# Ollama
+✓ Ollama configured as LLM provider.
+  URL: http://localhost:11434
+  Model: llama3
+```
+
+## Configuration Storage
+
+Settings are stored in adist config at:
+
+```
+~/.config/adist/config.json
+```
+
+## Switching Providers
+
+Re-run `adist llm-config` anytime to switch providers or models. The last configured provider becomes the default.
+
+## Related Commands
+
+- [adist query](/cli/query) - Use configured provider for queries
+- [adist chat](/cli/chat) - Use configured provider for chat
+- [adist reindex](/cli/reindex) - Use configured provider for summaries (with `-s`)

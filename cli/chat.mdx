@@ -1,0 +1,140 @@
+---
+title: adist chat
+description: Start an interactive chat session about your project
+---
+
+Start an interactive, multi-turn chat session with AI about your project. Maintains conversation history and context across messages.
+
+## Syntax
+
+```bash
+adist chat [options]
+```
+
+## Options
+
+<ParamField path="--stream" type="boolean">
+  Enable streaming responses for real-time output.
+  
+  **Note:** Code highlighting may not work properly in streaming mode.
+</ParamField>
+
+## Slash Commands
+
+Within the chat session, use these commands:
+
+<ParamField path="/help" type="command">
+  Display available slash commands.
+</ParamField>
+
+<ParamField path="/exit" type="command">
+  Exit the chat session.
+</ParamField>
+
+<ParamField path="/reset" type="command">
+  Clear chat history and start fresh.
+</ParamField>
+
+<ParamField path="/clear" type="command">
+  Clear the terminal screen.
+</ParamField>
+
+<ParamField path="/cost" type="command">
+  Show total session cost.
+</ParamField>
+
+<ParamField path="/debug" type="command">
+  Toggle debug information display.
+</ParamField>
+
+<ParamField path="/reindex" type="command">
+  Reindex the project with summaries without exiting chat.
+</ParamField>
+
+## Behavior
+
+- Maintains conversation history across all messages
+- Searches for relevant code blocks for each question
+- Uses project summaries when available
+- Shows document tree for each query in debug mode
+- Tracks cumulative API costs
+- Supports tab completion for slash commands
+
+## Examples
+
+### Start a chat session
+
+```bash
+adist chat
+```
+
+### Start with streaming enabled
+
+```bash
+adist chat --stream
+```
+
+### Example conversation
+
+```bash
+adist chat
+
+You: How does the authentication system work?
+# AI provides answer...
+
+You: Can you show me the login function?
+# AI provides specific code example...
+
+You: /cost
+# Shows: Total session cost: $0.0234
+
+You: /exit
+```
+
+## Session Information
+
+Each response displays:
+
+- **Debug Info:** Relevant documents and blocks found (if debug enabled)
+- **Document Tree:** Visual representation of matched files
+- **Answer:** AI response with code highlighting
+- **Message Cost:** Cost for individual message
+- **Context Status:** Cache usage indicator
+- **Query Complexity:** Complexity rating
+
+## Context Management
+
+- Conversation history is maintained in memory
+- Context is automatically included in follow-up questions
+- Use `/reset` to clear history and reduce costs
+- Project context is cached to minimize API costs
+
+## Requirements
+
+- Active project with indexed files
+- Configured LLM provider
+- Project preferably has summaries for better context
+
+## Warnings
+
+On startup, you'll be notified if:
+
+- Project has no indexed files
+- Project lacks block-based indexes
+- Project doesn't have summaries
+
+## Environment Variables
+
+<ParamField path="ANTHROPIC_API_KEY" type="string">
+  Required if using Anthropic Claude provider.
+</ParamField>
+
+<ParamField path="OPENAI_API_KEY" type="string">
+  Required if using OpenAI provider.
+</ParamField>
+
+## Related Commands
+
+- [adist query](/cli/query) - Single question queries
+- [adist llm-config](/cli/llm-config) - Configure AI provider
+- [adist reindex](/cli/reindex) - Update project index

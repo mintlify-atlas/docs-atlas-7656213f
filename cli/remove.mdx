@@ -1,0 +1,223 @@
+---
+title: Remove Commands
+description: Remove indexes, projects, or troubleshoot with ID-based removal
+---
+
+Adist provides multiple commands for removing indexes and projects at different levels.
+
+## Commands
+
+### remove-index
+
+Remove only the search index for a project, keeping the project definition.
+
+#### Syntax
+
+```bash
+adist remove-index <projectName>
+```
+
+#### Arguments
+
+<ParamField path="projectName" type="string" required>
+  Name of the project whose index should be removed.
+</ParamField>
+
+#### Behavior
+
+- Removes file indexes (both legacy and block-based)
+- Marks project as not indexed
+- Keeps project definition and metadata
+- Preserves summaries
+
+#### Example
+
+```bash
+adist remove-index my-project
+```
+
+Output:
+```
+🗑️ Removing index: my-project
+
+✓ Index removed successfully!
+Run adist reindex my-project to rebuild the index.
+```
+
+#### Use Cases
+
+- Corrupted index needs rebuilding
+- Switching from legacy to block-based indexing
+- Clearing stale index data
+- Freeing up disk space temporarily
+
+---
+
+### remove-project
+
+Completely remove a project including its index, summaries, and metadata.
+
+#### Syntax
+
+```bash
+adist remove-project <projectName>
+```
+
+#### Arguments
+
+<ParamField path="projectName" type="string" required>
+  Name of the project to remove completely.
+</ParamField>
+
+#### Behavior
+
+- Removes project definition
+- Removes all indexes
+- Removes all summaries
+- Removes all project metadata
+- If current project, switches to another project or unsets
+
+#### Example
+
+```bash
+adist remove-project old-project
+```
+
+Output:
+```
+🗑️ Removing project: old-project
+Location: /home/user/projects/old-project
+
+✓ Project removed successfully!
+```
+
+#### Current Project Handling
+
+If removing the current project:
+
+```bash
+adist remove-project my-project
+```
+
+Output:
+```
+🗑️ Removing project: my-project
+Location: /home/user/projects/my-project
+Current project changed to: another-project
+
+✓ Project removed successfully!
+```
+
+Or if no projects remain:
+
+```
+No projects remain. Current project unset.
+```
+
+#### Use Cases
+
+- Removing deleted projects from adist
+- Cleaning up old projects
+- Starting fresh with a project
+- Freeing disk space
+
+---
+
+### remove-project-id
+
+Remove a project by its ID rather than name. Useful for troubleshooting corrupted projects.
+
+#### Syntax
+
+```bash
+adist remove-project-id <projectId>
+```
+
+#### Arguments
+
+<ParamField path="projectId" type="string" required>
+  Unique ID of the project to remove. Get IDs from `adist list --debug` or `adist paths`.
+</ParamField>
+
+#### Behavior
+
+- Same as `remove-project` but uses ID instead of name
+- Useful when project name is corrupted or inaccessible
+- Shows project name if available
+- Removes all project data
+
+#### Example
+
+```bash
+adist list --debug
+# Note the project ID
+
+adist remove-project-id 1234567890123
+```
+
+Output:
+```
+🗑️ Removing project by ID: 1234567890123
+Name: my-project
+Path: /home/user/projects/my-project
+
+✓ Project removed successfully!
+```
+
+#### Use Cases
+
+- Corrupted project with invalid name
+- Duplicate projects with same name
+- Troubleshooting configuration issues
+- Advanced cleanup operations
+
+## Comparison
+
+| Command | Removes Index | Removes Project | Removes Summaries | Identifier |
+|---------|--------------|-----------------|-------------------|------------|
+| `remove-index` | ✓ | ✗ | ✗ | Name |
+| `remove-project` | ✓ | ✓ | ✓ | Name |
+| `remove-project-id` | ✓ | ✓ | ✓ | ID |
+
+## Safety
+
+### What Gets Deleted
+
+- Project metadata in adist config
+- Search indexes
+- AI-generated summaries
+
+### What Stays Safe
+
+- Actual project files and source code
+- Git repositories
+- Any files in the project directory
+
+**Note:** These commands only remove adist's internal data, never your actual code.
+
+## Recommendations
+
+### Use remove-index when:
+
+- Index seems corrupted
+- Switching indexing methods
+- Want to reindex from scratch
+
+### Use remove-project when:
+
+- Project directory was deleted
+- No longer need to search this project
+- Clean up old projects
+
+### Use remove-project-id when:
+
+- Normal removal fails
+- Project data is corrupted
+- Dealing with edge cases
+
+## Related Commands
+
+- [adist list](/cli/list) - View all projects and IDs
+- [adist paths](/cli/paths) - Get current project ID
+- [adist init](/cli/init) - Re-initialize a removed project
+- [adist reindex](/cli/reindex) - Rebuild index after remove-index

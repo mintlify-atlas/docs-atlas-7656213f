@@ -1,0 +1,268 @@
+---
+title: Supported File Types
+description: Complete list of file types supported by Adist for indexing and searching
+---
+
+## Overview
+
+Adist can index a wide variety of file types, from source code to documentation to configuration files. The tool automatically detects file types based on extensions and applies appropriate parsing strategies.
+
+## Indexing Patterns
+
+By default, Adist indexes files matching these patterns:
+
+```javascript
+**/*.{js,jsx,ts,tsx,md,markdown,json,yaml,yml,toml}
+```
+
+You can customize these patterns using the `includePatterns` option when indexing.
+
+## Excluded Directories
+
+These directories are excluded by default to avoid indexing dependencies and build artifacts:
+
+- `**/node_modules/**` - npm/yarn packages
+- `**/dist/**` - Build output
+- `**/build/**` - Build output
+- `**/.git/**` - Git repository data
+- `**/coverage/**` - Test coverage reports
+- `**/*.min.*` - Minified files
+
+You can customize exclusions using the `excludePatterns` option.
+
+## File Types with Specialized Parsing
+
+### JavaScript & TypeScript
+
+**Extensions**: `.js`, `.jsx`, `.ts`, `.tsx`
+
+**Specialized parser**: Yes (CodeParser)
+
+**Extracted blocks**:
+- Import statements
+- Type definitions and interfaces
+- Function declarations
+- Class declarations and methods
+- Variable declarations
+- React/JSX components
+- JSDoc comment blocks
+
+**Example**:
+
+```typescript
+// This file will be parsed into separate blocks:
+import { foo } from 'bar';  // Imports block
+
+export interface Config {    // Interface block
+  name: string;
+}
+
+export class Service {       // Class block
+  async fetch() {            // Method block (child of class)
+    // ...
+  }
+}
+
+export function helper() {   // Function block
+  // ...
+}
+```
+
+### Markdown
+
+**Extensions**: `.md`, `.markdown`
+
+**Specialized parser**: Yes (MarkdownParser)
+
+**Extracted blocks**:
+- Headings (H1-H6) with hierarchical content
+- Paragraphs
+- Lists (ordered and unordered)
+- Fenced code blocks with language tags
+- Tables
+
+**Features**:
+- Parses GitHub Flavored Markdown (GFM)
+- Maintains heading hierarchy
+- Preserves code block languages for syntax highlighting
+- Each heading includes all content until the next heading
+
+**Example**:
+
+```markdown
+# Getting Started           # Heading block (H1)
+
+This is a paragraph.        # Paragraph block
+
+## Installation             # Heading block (H2, child of H1)
+
+Run this command:           # Paragraph block
+
+```bash                     # Code block
+npm install adist
+```
+```
+
+### JSON, YAML, TOML
+
+**Extensions**: `.json`, `.yaml`, `.yml`, `.toml`
+
+**Specialized parser**: No (fallback parser)
+
+**Indexing strategy**: 
+- Indexed as a single document block
+- Full file content is searchable
+- No semantic block extraction
+
+**Best for**:
+- Configuration files
+- Package manifests
+- Data files
+
+## File Types with Fallback Parsing
+
+These file types are indexed but don't have specialized block extraction:
+
+### Text Files
+
+**Extensions**: `.txt`, `.rst`, `.asciidoc`
+
+**Indexing**: Full document as single block
+
+### Configuration Files
+
+**Extensions**: `.ini`, `.conf`, `.env`, `.properties`
+
+**Indexing**: Full document as single block
+
+**Note**: Avoid committing `.env` files with secrets to your repository. Adist will warn you if you try to commit them.
+
+### Other Code Files
+
+Currently, these are indexed as full documents:
+
+- **Python**: `.py` (planned for specialized parsing)
+- **Go**: `.go` (planned for specialized parsing)
+- **Rust**: `.rs` (planned for specialized parsing)
+- **Ruby**: `.rb`
+- **PHP**: `.php`
+- **Java**: `.java`
+- **C/C++**: `.c`, `.cpp`, `.h`, `.hpp`
+- **CSS**: `.css`, `.scss`, `.sass`, `.less`
+- **HTML**: `.html`, `.htm`
+- **SQL**: `.sql`
+- **Shell**: `.sh`, `.bash`
+
+## Customizing File Patterns
+
+You can customize which files are indexed by modifying the source code patterns:
+
+### Include Patterns
+
+To index additional file types, add extensions to the include patterns:
+
+```javascript
+const includePatterns = [
+  '**/*.{js,jsx,ts,tsx,md,markdown,json,yaml,yml,toml}',
+  '**/*.{py,go,rs}',  // Add Python, Go, Rust
+];
+```
+
+### Exclude Patterns
+
+To exclude additional directories or files:
+
+```javascript
+const excludePatterns = [
+  '**/node_modules/**',
+  '**/dist/**',
+  '**/.git/**',
+  '**/temp/**',        // Add temp directory
+  '**/*.log',          // Add log files
+];
+```
+
+Pass these options when indexing:
+
+```typescript
+await blockIndexer.indexProject(projectId, {
+  includePatterns: ['**/*.py', '**/*.md'],
+  excludePatterns: ['**/venv/**', '**/temp/**'],
+});
+```
+
+## Parser Registry
+
+Adist uses a parser registry system that automatically selects the right parser for each file:
+
+1. **Check registered parsers**: Iterates through specialized parsers (Markdown, Code)
+2. **Match by extension**: Each parser declares which extensions it handles
+3. **Fallback parser**: If no specialized parser matches, uses the fallback
+
+The fallback parser creates a simple document block containing the entire file content.
+
+## Adding New Parsers
+
+To add support for new file types with specialized parsing:
+
+1. Create a parser class implementing the `Parser` interface
+2. Implement `canParse(filePath, content)` to detect supported files
+3. Implement `parse(filePath, content, stats)` to extract blocks
+4. Register the parser in `ParserRegistry`
+
+**Example** (Python parser concept):
+
+```typescript
+export class PythonParser implements Parser {
+  canParse(filePath: string): boolean {
+    return /\.py$/i.test(filePath);
+  }
+
+  async parse(filePath: string, content: string, stats: any) {
+    // Extract functions, classes, imports, etc.
+    // Return IndexedDocument with blocks
+  }
+}
+```
+
+Then register it:
+
+```typescript
+this.parsers = [
+  new MarkdownParser(),
+  new CodeParser(),
+  new PythonParser(),  // Add new parser
+];
+```
+
+## File Size Limits
+
+Adist doesn't impose hard file size limits, but consider:
+
+- **Very large files** (>1 MB) may slow down parsing
+- **LLM context limits** may truncate summaries for large files
+- **Memory usage** scales with the number of blocks extracted
+
+**Best practice**: Exclude generated or minified files that are very large.
+
+## Binary Files
+
+Adist is designed for text-based files. Binary files are skipped:
+
+- Images (`.png`, `.jpg`, `.gif`)
+- Compiled binaries
+- Archives (`.zip`, `.tar.gz`)
+- Media files (`.mp4`, `.mp3`)
+
+These won't cause errors but won't be indexed either.
+
+## Future File Type Support
+
+Planned specialized parsers:
+
+- **Python** - Functions, classes, imports, decorators
+- **Go** - Packages, functions, structs, interfaces
+- **Rust** - Modules, functions, structs, traits, macros
+- **HTML/JSX** - Components, templates, custom elements
+
+Community contributions are welcome! See the [contributing guide](https://github.com/okikorg/adist) to add support for your favorite language.

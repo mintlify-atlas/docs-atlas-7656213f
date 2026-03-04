@@ -1,0 +1,442 @@
+---
+title: "AI Chat"
+description: "Interactive AI-powered conversations about your codebase with context awareness and chat history"
+---
+
+## Overview
+
+The chat command starts an interactive session where you can have natural conversations with AI about your project. Unlike single queries, chat maintains conversation history and context across multiple questions.
+
+## Starting a Chat Session
+
+```bash
+adist chat
+```
+
+You'll see:
+
+```bash
+Chat Session Started
+Project: my-awesome-project
+Type "/help" to see available commands
+
+You: 
+```
+
+<Tip>
+  Enable streaming for real-time responses:
+  ```bash
+  adist chat --stream
+  ```
+</Tip>
+
+## How Chat Works
+
+### Context-Aware Conversations
+
+For each message, the chat system:
+
+1. **Searches for relevant blocks**: Finds code blocks matching your question
+2. **Includes conversation history**: Maintains context from previous messages
+3. **Generates AI response**: Uses LLM with full project context
+4. **Displays formatted output**: Shows code with syntax highlighting
+5. **Tracks costs**: Monitors API usage per message
+
+### Example Chat Session
+
+```bash
+You: how does the indexer work?
+
+Assistant:
+The indexer uses a block-based approach...
+[detailed explanation with code snippets]
+
+Message cost: $0.0031
+
+You: what file types does it support?
+
+Assistant:
+The indexer supports JavaScript, TypeScript, Python...
+[continues with context from previous answer]
+
+Message cost: $0.0018 (using cached context)
+```
+
+## Slash Commands
+
+Chat mode includes built-in commands:
+
+### /help
+Show all available commands:
+
+```bash
+You: /help
+
+Available Commands:
+/help - Show available commands
+/exit - Exit the chat session
+/reset - Reset the chat history
+/clear - Clear the terminal screen
+/cost - Show total cost of the session
+/debug - Toggle debug information display
+/reindex - Reindex the project with summaries
+```
+
+### /exit
+End the chat session:
+
+```bash
+You: /exit
+
+Chat Session Ended
+Total cost: $0.0234
+```
+
+### /reset
+Clear conversation history and start fresh:
+
+```bash
+You: /reset
+✓ Chat history reset
+```
+
+<Warning>
+  This removes all previous messages from context. The AI won't remember earlier parts of the conversation.
+</Warning>
+
+### /clear
+Clear the terminal screen while keeping chat history:
+
+```bash
+You: /clear
+
+Chat Session
+Project: my-awesome-project
+```
+
+### /cost
+Show total session cost:
+
+```bash
+You: /cost
+
+Total session cost: $0.0156
+```
+
+### /debug
+Toggle debug information on/off:
+
+```bash
+You: /debug
+✓ Debug information disabled
+```
+
+Debug info shows:
+- Number of documents and blocks found
+- Document tree with file structure
+- Block types and line numbers
+
+### /reindex
+Reindex the project without leaving chat:
+
+```bash
+You: /reindex
+
+Reindexing project with block-based indexing and summaries...
+This will take a few moments...
+
+✓ Project reindexed successfully with block-based indexing!
+
+Chat session resumed.
+```
+
+## Response Modes
+
+### Default Mode (Recommended)
+
+Without the `--stream` flag:
+- Shows a loading spinner while AI generates response
+- Applies full syntax highlighting to code blocks
+- Better formatted markdown output
+- Cleaner reading experience
+
+```bash
+adist chat
+```
+
+### Streaming Mode
+
+With the `--stream` flag:
+- Shows responses in real-time as they're generated
+- Faster time-to-first-token
+- May have limited code highlighting
+- Good for long responses
+
+```bash
+adist chat --stream
+```
+
+## Debug Information
+
+When debug mode is enabled, you'll see detailed search results:
+
+```bash
+Debug Info:
+Found 2 document(s) with 5 relevant blocks
+
+Document tree:
+└── src
+    ├── commands
+    │   └── chat.ts (3 blocks)
+    │       ├── function: chatCommand (lines 27-595)
+    │       ├── function: handleSlashCommand (lines 119-177)
+    │       └── interface: Message (lines 11-14)
+    └── utils
+        └── block-indexer.ts (2 blocks)
+            ├── class: BlockSearchEngine (lines 259-465)
+            └── function: searchBlocks (lines 263-284)
+```
+
+## Summary Support
+
+Chat mode integrates with project summaries:
+
+### Explicit Summary Requests
+
+```bash
+You: summary
+```
+
+If summaries were generated during indexing, you'll get the project summary immediately without an LLM call.
+
+### Summary-Related Questions
+
+Questions like these automatically use summaries when available:
+```bash
+You: what is this project about?
+You: give me an overview
+You: describe the architecture
+```
+
+<Info>
+  Generate summaries with:
+  ```bash
+  adist reindex --summarize
+  ```
+</Info>
+
+## Context Caching
+
+Chat uses intelligent context caching:
+
+- **Cache Key**: Based on project ID
+- **Cache Contents**: Project structure and summaries
+- **Benefits**: 
+  - Faster subsequent messages
+  - Lower API costs
+  - Consistent context
+
+```bash
+Message cost: $0.0021 (using cached context)
+```
+
+## Query Complexity
+
+The system analyzes query complexity:
+
+<CodeGroup>
+```bash Low Complexity
+You: what is this file?
+Message cost: $0.0008 · complexity: low
+```
+
+```bash Medium Complexity  
+You: how does authentication work?
+Message cost: $0.0024 · complexity: medium
+```
+
+```bash High Complexity
+You: explain the entire data flow from API to database with error handling
+Message cost: $0.0067 · complexity: high
+```
+</CodeGroup>
+
+Complexity affects:
+- Token usage
+- Response detail level
+- API cost
+
+## Code Highlighting
+
+Chat automatically detects and highlights code:
+
+```typescript
+export const chatCommand = new Command('chat')
+  .description('Start an interactive chat session about your project')
+  .option('--stream', 'Enable streaming responses')
+  .action(async (options) => {
+    // Chat implementation
+  });
+```
+
+Supported languages include JavaScript, TypeScript, Python, Go, Java, and many more.
+
+## Best Practices
+
+### Start Broad, Then Narrow
+
+<Steps>
+  <Step title="Get an overview">
+    ```bash
+    You: what does this project do?
+    ```
+  </Step>
+  
+  <Step title="Dive into specifics">
+    ```bash
+    You: how is user authentication implemented?
+    ```
+  </Step>
+  
+  <Step title="Explore details">
+    ```bash
+    You: show me the JWT token validation code
+    ```
+  </Step>
+</Steps>
+
+### Use Follow-up Questions
+
+The AI remembers context:
+
+```bash
+You: how does the indexer work?
+Assistant: [explains indexing process]
+
+You: what about summarization?
+Assistant: [explains with context from previous answer]
+
+You: does it support custom file types?
+Assistant: [continues conversation naturally]
+```
+
+### Reset When Changing Topics
+
+Use `/reset` when switching to unrelated topics:
+
+```bash
+You: [asking about authentication]
+...
+You: /reset
+✓ Chat history reset
+You: [now asking about database schema]
+```
+
+## Troubleshooting
+
+### Project Not Indexed
+
+```bash
+✘ Project has no indexed files.
+Run "adist reindex" to index your project files.
+```
+
+**Solution**: Index your project first:
+```bash
+adist reindex
+```
+
+### No Project Selected
+
+```bash
+✘ No project is currently selected.
+Run "adist init" or "adist switch" first.
+```
+
+**Solution**: Initialize or switch to a project:
+```bash
+adist init my-project
+# or
+adist switch my-project
+```
+
+### LLM Configuration Error
+
+```bash
+✘ LLM Error: No LLM provider available
+To configure an LLM provider, run "adist llm-config"
+```
+
+**Solution**: Configure your LLM provider:
+```bash
+adist llm-config
+```
+
+### Missing Summaries Warning
+
+```bash
+⚠️ Project does not have summaries.
+Run "adist reindex --summarize" to generate summaries for better context.
+```
+
+Summaries are optional but improve response quality:
+```bash
+adist reindex --summarize
+```
+
+## Performance Tips
+
+### Reduce Costs
+
+1. **Use Ollama**: Free local LLM, no API costs
+   ```bash
+   adist llm-config
+   # Select Ollama
+   ```
+
+2. **Enable Summaries**: Better context with fewer tokens
+   ```bash
+   adist reindex --summarize
+   ```
+
+3. **Keep Questions Focused**: Simpler queries = lower costs
+
+### Improve Response Speed
+
+1. **Use Streaming Mode**: See responses faster
+   ```bash
+   adist chat --stream
+   ```
+
+2. **Reindex Regularly**: Keep indexes up-to-date
+   ```bash
+   adist reindex
+   ```
+
+3. **Use Context Caching**: Automatic after first query
+
+## Comparison: Chat vs Query
+
+| Feature | Chat | Query |
+|---------|------|-------|
+| Conversation history | ✅ Yes | ❌ No |
+| Multiple questions | ✅ Yes | ❌ Single |
+| Slash commands | ✅ Yes | ❌ No |
+| Cost tracking | ✅ Per session | ✅ Per query |
+| Interactive | ✅ Yes | ❌ One-shot |
+| Debug toggle | ✅ Yes | ✅ Always on |
+
+<Tip>
+  Use **chat** for exploration and learning. Use **query** for quick one-off questions.
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Search Commands" icon="magnifying-glass" href="/features/searching">
+    Learn about search and query commands
+  </Card>
+  <Card title="LLM Configuration" icon="brain" href="/llm/overview">
+    Configure your AI provider
+  </Card>
+</CardGroup>

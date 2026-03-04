@@ -1,0 +1,364 @@
+---
+title: 'Troubleshooting'
+description: 'Solutions to common Adist CLI issues and error messages'
+---
+
+This guide helps you resolve common issues when using the Adist CLI tool.
+
+## Common Issues
+
+<AccordionGroup>
+  <Accordion title="Error: No project is currently selected">
+    **Problem**: You see the error message:
+    ```
+    ✘ No project is currently selected.
+    Run "adist init" or "adist switch" first.
+    ```
+
+    **Solution**: Initialize a new project or switch to an existing one:
+
+    ```bash
+    # Initialize a new project in the current directory
+    adist init my-project
+
+    # Or switch to an existing project
+    adist switch
+    ```
+
+    **Why this happens**: Adist needs an active project context to perform searches and other operations.
+  </Accordion>
+
+  <Accordion title="LLM features not working (No API key)">
+    **Problem**: Commands like `query`, `chat`, or `reindex --summarize` fail with API key errors.
+
+    **Solution**: Configure your LLM provider and set the appropriate API key:
+
+    **For Anthropic Claude:**
+    ```bash
+    export ANTHROPIC_API_KEY='your-api-key-here'
+    adist llm-config
+    ```
+
+    **For OpenAI:**
+    ```bash
+    export OPENAI_API_KEY='your-api-key-here'
+    adist llm-config
+    ```
+
+    **For Ollama (local, no API key needed):**
+    ```bash
+    # Install Ollama from https://ollama.com/download
+    ollama pull llama3
+    adist llm-config
+    ```
+
+    <Note>
+      Add the export command to your `~/.bashrc`, `~/.zshrc`, or equivalent to persist the API key across sessions.
+    </Note>
+  </Accordion>
+
+  <Accordion title="No documents found matching your query">
+    **Problem**: Search returns no results even though you know the content exists.
+
+    **Solution**: Try these steps:
+
+    1. **Check if project is indexed:**
+       ```bash
+       adist list
+       ```
+       Look for your project and verify it's been indexed.
+
+    2. **Reindex the project:**
+       ```bash
+       adist reindex
+       ```
+
+    3. **Verify file types are supported:**
+       Adist indexes common file types (.md, .txt, .js, .ts, .py, .go, etc.). If your files use uncommon extensions, they may not be indexed.
+
+    4. **Try different search terms:**
+       - Use specific keywords from your files
+       - Try file path searches: `adist get "filename.js"`
+       - Use broader terms if specific ones don't work
+  </Accordion>
+
+  <Accordion title="Project not found error">
+    **Problem**: `✘ Current project not found` or `✘ Project not found`
+
+    **Solution**: List all projects and verify the project exists:
+
+    ```bash
+    # List all projects
+    adist list
+
+    # If your project is missing, initialize it again
+    cd /path/to/your/project
+    adist init project-name
+    ```
+
+    **Advanced troubleshooting:**
+    ```bash
+    # Show debug information
+    adist list --debug
+
+    # Remove corrupted project and re-initialize
+    adist remove-project project-name
+    adist init project-name
+    ```
+  </Accordion>
+
+  <Accordion title="Permission denied errors">
+    **Problem**: Errors about file permissions when indexing or reading files.
+
+    **Solution**:
+
+    1. **Check directory permissions:**
+       ```bash
+       ls -la
+       ```
+       Ensure you have read access to the files you're trying to index.
+
+    2. **Verify Adist config directory permissions:**
+       ```bash
+       # macOS
+       ls -la ~/Library/Application\ Support/adist
+
+       # Linux
+       ls -la ~/.config/adist
+
+       # Windows
+       dir %APPDATA%\adist
+       ```
+
+    3. **Fix permissions if needed:**
+       ```bash
+       # macOS/Linux
+       chmod -R u+rw ~/Library/Application\ Support/adist  # macOS
+       chmod -R u+rw ~/.config/adist  # Linux
+       ```
+  </Accordion>
+
+  <Accordion title="Ollama connection failed">
+    **Problem**: Cannot connect to Ollama for local LLM features.
+
+    **Solution**:
+
+    1. **Check if Ollama is running:**
+       ```bash
+       # Ollama runs as a background service
+       # Try accessing the API
+       curl http://localhost:11434/api/tags
+       ```
+
+    2. **Start Ollama if not running:**
+       ```bash
+       # macOS/Linux
+       ollama serve
+       ```
+
+    3. **Verify model is installed:**
+       ```bash
+       ollama list
+       ```
+
+    4. **Pull a model if needed:**
+       ```bash
+       ollama pull llama3
+       ```
+
+    5. **Reconfigure Adist:**
+       ```bash
+       adist llm-config
+       ```
+  </Accordion>
+
+  <Accordion title="Streaming mode issues">
+    **Problem**: Code highlighting broken or strange characters when using `--stream` flag.
+
+    **Solution**: This is expected behavior. Streaming mode shows real-time responses but has limited code highlighting.
+
+    **Use default mode for better formatting:**
+    ```bash
+    # Default mode with full code highlighting
+    adist query "your question"
+    adist chat
+
+    # Only use --stream if you need real-time responses
+    adist query "your question" --stream
+    adist chat --stream
+    ```
+  </Accordion>
+
+  <Accordion title="Configuration file corrupted">
+    **Problem**: Adist behaves erratically or shows unexpected errors.
+
+    **Solution**: View and verify your configuration:
+
+    ```bash
+    # Show storage locations
+    adist paths
+    ```
+
+    **Reset configuration (WARNING: This removes all projects):**
+    ```bash
+    # macOS
+    rm -rf ~/Library/Application\ Support/adist
+
+    # Linux
+    rm -rf ~/.config/adist
+
+    # Windows
+    rd /s /q %APPDATA%\adist
+    ```
+
+    After resetting, reinitialize your projects:
+    ```bash
+    cd /path/to/project
+    adist init project-name
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Installation Issues
+
+<AccordionGroup>
+  <Accordion title="npm install -g adist fails">
+    **Problem**: Cannot install Adist globally.
+
+    **Solution**:
+
+    1. **Check Node.js version:**
+       ```bash
+       node --version
+       ```
+       Ensure you have Node.js installed. Adist requires Node.js v14 or higher.
+
+    2. **Use correct npm permissions:**
+       ```bash
+       # Option 1: Use npx instead
+       npx adist init my-project
+
+       # Option 2: Fix npm global permissions
+       # See: https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally
+       ```
+
+    3. **Clear npm cache:**
+       ```bash
+       npm cache clean --force
+       npm install -g adist
+       ```
+  </Accordion>
+
+  <Accordion title="Command not found: adist">
+    **Problem**: After installation, `adist` command is not recognized.
+
+    **Solution**:
+
+    1. **Check if npm global bin is in PATH:**
+       ```bash
+       npm config get prefix
+       ```
+
+    2. **Add npm global bin to PATH:**
+       ```bash
+       # Add to ~/.bashrc or ~/.zshrc
+       export PATH="$(npm config get prefix)/bin:$PATH"
+       ```
+
+    3. **Reload your shell:**
+       ```bash
+       source ~/.bashrc  # or ~/.zshrc
+       ```
+
+    4. **Alternative: Use npx:**
+       ```bash
+       npx adist init my-project
+       ```
+  </Accordion>
+</AccordionGroup>
+
+## Performance Issues
+
+<AccordionGroup>
+  <Accordion title="Indexing is very slow">
+    **Problem**: Initial indexing takes a long time.
+
+    **Why this happens**: Large projects with thousands of files can take time to index, especially with `--summarize` enabled.
+
+    **Solutions**:
+
+    1. **Index without summaries first:**
+       ```bash
+       adist init my-project
+       # Add summaries later if needed
+       adist reindex --summarize
+       ```
+
+    2. **Use Ollama for faster local summarization:**
+       ```bash
+       adist llm-config  # Select Ollama
+       adist reindex --summarize
+       ```
+
+    3. **Exclude large directories:**
+       Add a `.gitignore` file to your project. Adist respects `.gitignore` patterns and won't index excluded files.
+  </Accordion>
+
+  <Accordion title="Search results are slow">
+    **Problem**: Searches take too long to return results.
+
+    **Solution**:
+
+    1. **Reindex with block-based method:**
+       ```bash
+       adist reindex
+       ```
+       Block-based indexing provides faster, more precise searches.
+
+    2. **Use more specific queries:**
+       More specific search terms return faster results than broad terms.
+
+    3. **Check project size:**
+       ```bash
+       adist list --debug
+       ```
+       Very large projects may benefit from being split into multiple smaller projects.
+  </Accordion>
+</AccordionGroup>
+
+## Getting Help
+
+<Note>
+  If you encounter an issue not listed here, please:
+  - Check the [GitHub repository](https://github.com/okikorg/adist) for known issues
+  - Submit a new issue with details about your problem
+  - Include your operating system, Node.js version, and Adist version (`adist --version`)
+</Note>
+
+### Useful Debug Commands
+
+When reporting issues, include output from these commands:
+
+```bash
+# Show version
+adist --version
+
+# Show all projects with debug info
+adist list --debug
+
+# Show storage locations
+adist paths
+
+# Check Node.js version
+node --version
+
+# Check npm version
+npm --version
+```
+
+## Related Resources
+
+- [Installation Guide](/installation) - Getting started with Adist
+- [CLI Commands](/cli/init) - Full command reference
+- [Configuration](/guides/configuration) - LLM and project configuration
+- [GitHub Issues](https://github.com/okikorg/adist/issues) - Report bugs and request features

@@ -1,0 +1,102 @@
+---
+title: adist query
+description: Query your project with natural language using AI
+---
+
+Ask natural language questions about your project and get AI-powered answers based on your codebase.
+
+## Syntax
+
+```bash
+adist query <question> [options]
+```
+
+## Arguments
+
+<ParamField path="question" type="string" required>
+  The natural language question to ask about your project.
+</ParamField>
+
+## Options
+
+<ParamField path="--stream" type="boolean">
+  Enable streaming responses for real-time output.
+  
+  **Note:** Code highlighting may not work properly in streaming mode.
+</ParamField>
+
+## Behavior
+
+1. Searches for relevant code blocks using semantic search
+2. Retrieves project summaries if available and relevant
+3. Sends context to configured LLM provider
+4. Returns AI-generated answer with code examples
+5. Displays cost estimation and context information
+
+## Examples
+
+### Ask about functionality
+
+```bash
+adist query "How does authentication work in this project?"
+```
+
+### Request code examples
+
+```bash
+adist query "Show me examples of API error handling"
+```
+
+### Get project overview
+
+```bash
+adist query "What is this project about?"
+```
+
+### Use streaming mode
+
+```bash
+adist query "Explain the database schema" --stream
+```
+
+## Output Information
+
+The command displays:
+
+- **Debug Info:** Number of documents and blocks found
+- **Document Tree:** Hierarchical view of relevant files and blocks
+- **Answer:** AI-generated response with syntax highlighting
+- **Cost:** Estimated API cost for the query
+- **Context Status:** Whether cached context was used
+- **Query Complexity:** Complexity rating (low/medium/high)
+
+## Context Caching
+
+The command uses context caching to reduce costs:
+
+- Project context is cached per project ID
+- Repeated queries reuse cached context
+- Cache indicator shown in output
+
+## Requirements
+
+- Active project must be selected
+- LLM provider must be configured (see [adist llm-config](/cli/llm-config))
+- Project should be indexed with block-based indexing
+
+## Environment Variables
+
+<ParamField path="ANTHROPIC_API_KEY" type="string">
+  Required if using Anthropic Claude provider.
+</ParamField>
+
+<ParamField path="OPENAI_API_KEY" type="string">
+  Required if using OpenAI provider.
+</ParamField>
+
+## Related Commands
+
+- [adist chat](/cli/chat) - Interactive multi-turn conversations
+- [adist get](/cli/get) - Search without AI interpretation
+- [adist llm-config](/cli/llm-config) - Configure LLM provider
+- [adist summary](/cli/summary) - View project summaries

@@ -1,97 +1,243 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: Adist Documentation
+mode: custom
 ---
 
-## Setting up
+<div className="relative overflow-hidden bg-gradient-to-br from-[#8B5CF6] via-[#6D28D9] to-[#5B21B6] dark:from-[#6D28D9] dark:via-[#5B21B6] dark:to-[#4C1D95] py-20 px-4 sm:px-6 lg:px-8">
+  <div className="max-w-7xl mx-auto">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      <div className="lg:col-span-7">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+          AI-powered project intelligence
+        </h1>
+        <p className="text-lg sm:text-xl text-purple-100 max-w-2xl mb-8">
+          Index, search, and chat with your codebase using advanced semantic analysis and multiple LLM providers.
+        </p>
+        <div className="flex flex-wrap gap-4">
+          <a 
+            href="/quickstart" 
+            className="inline-flex items-center px-6 py-3 bg-white text-[#8B5CF6] font-semibold rounded-lg hover:bg-gray-100 transition-colors no-underline"
+          >
+            Get Started
+          </a>
+          <a 
+            href="/introduction" 
+            className="inline-flex items-center px-6 py-3 border border-white/30 bg-white/10 text-white font-semibold rounded-lg hover:bg-white/20 transition-colors no-underline"
+          >
+            Learn More
+          </a>
+        </div>
+      </div>
+      <div className="lg:col-span-5 hidden lg:block">
+        <div className="relative">
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-2xl"></div>
+          <div className="relative p-6 rounded-2xl border border-white/20">
+            <pre className="text-sm text-white overflow-x-auto">
+{`# Initialize your project
+adist init my-project
 
-Get your documentation site up and running in minutes.
+# Ask questions about your code
+adist query "How does auth work?"
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+# Start an interactive chat
+adist chat
 
-## Make it yours
+# Search your codebase
+adist get "authentication logic"`}
+            </pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-Design a docs site that looks great and empowers your users.
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="text-center mb-12">
+    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Get started in minutes</h2>
+    <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+      Follow these steps to start having AI-powered conversations about your codebase
+    </p>
+  </div>
 
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
-  </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
+  <Steps>
+    <Step title="Install Adist">
+      Install the CLI tool globally using npm:
+      
+      ```bash
+      npm install -g adist
+      ```
+      
+      Verify the installation by running `adist --version`.
+    </Step>
+
+    <Step title="Configure your LLM provider">
+      Choose your preferred AI provider and set up authentication:
+      
+      ```bash
+      adist llm-config
+      ```
+      
+      <Accordion title="Supported LLM providers">
+        - **Anthropic Claude** - Cloud-based, requires API key
+        - **OpenAI GPT** - Cloud-based, requires API key
+        - **Ollama** - Run locally, no API key needed
+      </Accordion>
+    </Step>
+
+    <Step title="Initialize your project">
+      Navigate to your project directory and run:
+      
+      ```bash
+      adist init my-project
+      ```
+      
+      This will index all supported files in your codebase and prepare them for semantic search.
+    </Step>
+
+    <Step title="Start asking questions">
+      Now you can query your codebase, search for specific patterns, or start an interactive chat:
+      
+      ```bash
+      # Query your project
+      adist query "How does the authentication system work?"
+      
+      # Search for specific code
+      adist get "database connection"
+      
+      # Start a chat session
+      adist chat
+      ```
+    </Step>
+  </Steps>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="text-center mb-12">
+    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Core features</h2>
+    <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+      Powerful tools to understand and navigate your codebase
+    </p>
+  </div>
+
+  <CardGroup cols={2}>
     <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
+      title="Block-based indexing"
+      icon="cube"
+      href="/features/indexing"
+    >
+      Semantic analysis breaks code into logical blocks using Tree-sitter for precise search results.
+    </Card>
+    <Card
+      title="AI-powered chat"
+      icon="messages"
+      href="/features/ai-chat"
+    >
+      Interactive conversations about your code with context awareness and streaming responses.
+    </Card>
+    <Card
+      title="Semantic search"
+      icon="magnifying-glass"
+      href="/features/searching"
+    >
+      Find relevant code and documentation using natural language queries.
+    </Card>
+    <Card
+      title="Multi-project support"
+      icon="folder-tree"
+      href="/features/project-management"
+    >
+      Manage and switch between multiple projects with independent indexes.
+    </Card>
+  </CardGroup>
+</div>
 
-## Create beautiful pages
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="text-center mb-12">
+    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Flexible LLM integration</h2>
+    <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+      Choose the AI provider that works best for your workflow
+    </p>
+  </div>
 
-Everything you need to create world-class documentation.
+  <CardGroup cols={3}>
+    <Card
+      title="Anthropic Claude"
+      icon="brain"
+      href="/llm/anthropic"
+    >
+      Use Claude models for powerful code understanding and generation.
+    </Card>
+    <Card
+      title="OpenAI GPT"
+      icon="sparkles"
+      href="/llm/openai"
+    >
+      Integrate with GPT-4 and other OpenAI models for AI interactions.
+    </Card>
+    <Card
+      title="Ollama (Local)"
+      icon="computer"
+      href="/llm/ollama"
+    >
+      Run models locally with Ollama for complete privacy and no API costs.
+    </Card>
+  </CardGroup>
+</div>
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="text-center mb-12">
+    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Explore documentation</h2>
+    <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+      Everything you need to master Adist
+    </p>
+  </div>
 
-## Need inspiration?
+  <CardGroup cols={2}>
+    <Card
+      title="CLI reference"
+      icon="terminal"
+      href="/cli/init"
+    >
+      Complete reference for all Adist commands and options.
+    </Card>
+    <Card
+      title="Block-based indexing"
+      icon="sitemap"
+      href="/guides/block-based-indexing"
+    >
+      Learn how Adist analyzes and indexes your code.
+    </Card>
+    <Card
+      title="Configuration guide"
+      icon="gear"
+      href="/guides/configuration"
+    >
+      Customize Adist to fit your workflow.
+    </Card>
+    <Card
+      title="Supported file types"
+      icon="file-code"
+      href="/guides/supported-file-types"
+    >
+      See which languages and formats Adist can index.
+    </Card>
+  </CardGroup>
+</div>
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<div className="mt-20 mb-16 max-w-5xl mx-auto px-6">
+  <div className="relative overflow-hidden bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] dark:from-[#6D28D9] dark:to-[#5B21B6] rounded-2xl p-12 text-center">
+    <div className="relative z-10">
+      <h2 className="text-3xl font-bold text-white mb-4">Ready to get started?</h2>
+      <p className="text-lg text-purple-100 mb-8 max-w-2xl mx-auto">
+        Install Adist and start having intelligent conversations with your codebase in minutes.
+      </p>
+      <a 
+        href="/installation" 
+        className="inline-flex items-center px-8 py-4 bg-white text-[#8B5CF6] font-semibold rounded-lg hover:bg-gray-100 transition-colors no-underline text-lg"
+      >
+        Install Now
+      </a>
+    </div>
+  </div>
+</div>

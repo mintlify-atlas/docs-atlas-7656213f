@@ -1,0 +1,158 @@
+---
+title: adist paths
+description: Show storage locations for indexes and configuration
+---
+
+Display information about where adist stores project data, indexes, summaries, and configuration files.
+
+## Syntax
+
+```bash
+adist paths
+```
+
+## Output Information
+
+### Storage Locations
+
+<ParamField path="Config File" type="path">
+  Location of the main adist configuration file (typically in `~/.config/adist/`)
+</ParamField>
+
+<ParamField path="Project Path" type="path">
+  Filesystem path to the current project directory
+</ParamField>
+
+<ParamField path="Project ID" type="string">
+  Unique identifier for the current project
+</ParamField>
+
+### Project Statistics
+
+<ParamField path="Indexed Files" type="number">
+  Count of files in the project index
+</ParamField>
+
+<ParamField path="Has Overall Summary" type="boolean">
+  Whether the project has an AI-generated summary
+</ParamField>
+
+### Physical Storage
+
+<ParamField path="Config Directory" type="path">
+  Directory containing all adist configuration
+</ParamField>
+
+<ParamField path="Data Directory" type="path">
+  Directory where project data is stored
+</ParamField>
+
+### Size Information
+
+<ParamField path="Overall Summary Size" type="size">
+  Size of the project summary in kilobytes (if available)
+</ParamField>
+
+<ParamField path="Total Index Size" type="size">
+  Combined size of all indexes in kilobytes
+</ParamField>
+
+## Example Output
+
+```bash
+adist paths
+```
+
+```
+Storage Locations:
+Config File: /home/user/.config/adist/config.json
+Project Path: /home/user/projects/my-api
+Project ID: 1234567890123
+Indexed Files: 42
+Has Overall Summary: Yes
+
+Physical Storage:
+Config Directory: /home/user/.config/adist
+Data Directory: /home/user/.config/adist
+Overall Summary Size: 2.45 KB
+Total Index Size: 128.73 KB
+```
+
+## Use Cases
+
+### Troubleshooting
+
+Find configuration files when debugging issues:
+
+```bash
+adist paths
+# Locate config file to manually inspect
+```
+
+### Backup
+
+Identify what to backup:
+
+```bash
+adist paths
+# Backup the Config Directory shown
+cp -r ~/.config/adist ~/backups/
+```
+
+### Disk Space
+
+Check storage usage:
+
+```bash
+adist paths
+# Review index and summary sizes
+# Clear old projects if needed
+```
+
+### Migration
+
+Find data location for migration:
+
+```bash
+adist paths
+# Copy config directory to new machine
+```
+
+## Configuration File Structure
+
+The config file contains:
+
+- Project definitions and metadata
+- Current project selection
+- Indexes (both legacy and block-based)
+- Generated summaries
+- LLM provider settings
+
+## Data Persistence
+
+All data is stored in:
+
+```
+~/.config/adist/config.json
+```
+
+This includes:
+
+- Projects list
+- File indexes
+- Code block indexes
+- AI-generated summaries
+- Provider configuration
+
+## Privacy & Security
+
+- Config file contains project paths and code summaries
+- No source code is stored in the config
+- API keys should be in environment variables (not in config)
+- Summaries may contain sensitive information
+
+## Related Commands
+
+- [adist list](/cli/list) - View all projects and their status
+- [adist remove-project](/cli/remove) - Clean up old projects
+- [adist reindex](/cli/reindex) - Rebuild indexes
